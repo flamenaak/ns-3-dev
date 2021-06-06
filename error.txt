@@ -1,0 +1,214 @@
+Waf: Entering directory `/home/vlado/ndnSIM/ns-3/build'
+[1485/2868] Compiling src/ndnSIM/examples/ndn-triangle-calculate-routes.cpp
+[1510/2868] Compiling src/ndnSIM/NFD/daemon/table/pit-in-record.cpp
+[1511/2868] Compiling src/ndnSIM/NFD/daemon/table/name-tree.cpp
+[1520/2868] Compiling src/ndnSIM/NFD/daemon/mgmt/strategy-choice-manager.cpp
+[2504/2868] Compiling src/ndnSIM/NFD/daemon/fw/forwarder.cpp
+[2513/2868] Compiling src/ndnSIM/NFD/daemon/fw/multicast-strategy.cpp
+[2519/2868] Compiling src/ndnSIM/NFD/daemon/table/name-tree-entry.cpp
+[2550/2868] Compiling src/ndnSIM/NFD/daemon/table/pit-face-record.cpp
+../src/ndnSIM/NFD/daemon/fw/multicast-strategy.cpp: In member function ‘virtual void nfd::fw::MulticastStrategy::afterReceiveInterest(const nfd::Face&, const ndn::Interest&, std::shared_ptr<nfd::fib::Entry>, std::shared_ptr<nfd::pit::Entry>)’:
+../src/ndnSIM/NFD/daemon/fw/multicast-strategy.cpp:86:50: error: ‘class ns3::MyResultApp’ has no member named ‘m_carBfFaceVec’
+                 for (std::size_t i=0; i<nodeApp->m_carBfFaceVec.size() ;i++){
+                                                  ^
+../src/ndnSIM/NFD/daemon/fw/multicast-strategy.cpp:87:31: error: ‘class ns3::MyResultApp’ has no member named ‘m_carBfFaceVec’
+                   if(nodeApp->m_carBfFaceVec.at(i).second != outFace->getId()){
+                               ^
+../src/ndnSIM/NFD/daemon/fw/multicast-strategy.cpp:89:54: error: ‘class ns3::MyResultApp’ has no member named ‘m_carBfFaceVec’
+                       bfUnion->operator= (*(nodeApp->m_carBfFaceVec.at(i).first));
+                                                      ^
+../src/ndnSIM/NFD/daemon/fw/multicast-strategy.cpp:95:51: error: ‘class ns3::MyResultApp’ has no member named ‘m_carBfFaceVec’
+                     tmpBf2->operator= (*(nodeApp->m_carBfFaceVec.at(i).first));
+                                                   ^
+
+In file included from ../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:26:0:
+../src/ndnSIM/NFD/daemon/fw/forwarder.hpp: In constructor ‘nfd::Forwarder::Forwarder()’:
+../src/ndnSIM/NFD/daemon/fw/forwarder.hpp:313:8: warning: ‘nfd::Forwarder::firstLinkFailFlag2’ will be initialized after [-Wreorder]
+   bool firstLinkFailFlag2;
+
+        ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.hpp:310:8: warning:   ‘bool nfd::Forwarder::secondLinkFailFlag1’ [-Wreorder]
+   bool secondLinkFailFlag1;
+
+        ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:55:1: warning:   when initialized here [-Wreorder]
+ Forwarder::Forwarder()
+
+ ^
+In file included from ../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:26:0:
+../src/ndnSIM/NFD/daemon/fw/forwarder.hpp:314:8: warning: ‘nfd::Forwarder::secondLinkFailFlag2’ will be initialized after [-Wreorder]
+   bool secondLinkFailFlag2;
+
+        ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.hpp:311:8: warning:   ‘bool nfd::Forwarder::thirdLinkFailFlag1’ [-Wreorder]
+   bool thirdLinkFailFlag1;
+
+        ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:55:1: warning:   when initialized here [-Wreorder]
+ Forwarder::Forwarder()
+
+ ^
+In file included from ../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:26:0:
+../src/ndnSIM/NFD/daemon/fw/forwarder.hpp:322:8: warning: ‘nfd::Forwarder::firstRecoveryFlag2’ will be initialized after [-Wreorder]
+   bool firstRecoveryFlag2;
+
+        ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.hpp:319:8: warning:   ‘bool nfd::Forwarder::secondRecoveryFlag1’ [-Wreorder]
+   bool secondRecoveryFlag1;
+
+        ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:55:1: warning:   when initialized here [-Wreorder]
+ Forwarder::Forwarder()
+
+ ^
+In file included from ../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:26:0:
+../src/ndnSIM/NFD/daemon/fw/forwarder.hpp:323:8: warning: ‘nfd::Forwarder::secondRecoveryFlag2’ will be initialized after [-Wreorder]
+   bool secondRecoveryFlag2;
+
+        ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.hpp:320:8: warning:   ‘bool nfd::Forwarder::thirdRecoveryFlag1’ [-Wreorder]
+   bool thirdRecoveryFlag1;
+
+        ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:55:1: warning:   when initialized here [-Wreorder]
+ Forwarder::Forwarder()
+
+ ^
+In file included from ../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:26:0:
+../src/ndnSIM/NFD/daemon/fw/forwarder.hpp:324:8: warning: ‘nfd::Forwarder::thirdRecoveryFlag2’ will be initialized after [-Wreorder]
+   bool thirdRecoveryFlag2;
+
+        ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.hpp:304:7: warning:   ‘int nfd::Forwarder::appIndex’ [-Wreorder]
+   int appIndex;
+
+       ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:55:1: warning:   when initialized here [-Wreorder]
+ Forwarder::Forwarder()
+
+ ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:89:11: warning: variable ‘N_CONS’ set but not used [-Wunused-but-set-variable]
+    size_t N_CONS =0;
+
+           ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp: In member function ‘void nfd::Forwarder::onIncomingInterest(nfd::Face&, const ndn::Interest&)’:
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:140:33: error: ‘class ns3::MyResultApp’ has no member named ‘m_carInFaceVec’
+       this->getNodeApp().first->m_carInFaceVec.push_back(inFace.getId());
+
+                                 ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:146:33: error: ‘class ns3::MyResultApp’ has no member named ‘m_carBfFaceVec’
+       this->getNodeApp().first->m_carBfFaceVec.push_back(pr);
+
+                                 ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:149:33: error: ‘class ns3::MyResultApp’ has no member named ‘m_caInFaceVec’
+       this->getNodeApp().first->m_caInFaceVec.push_back(inFace.getId());
+
+                                 ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp: In member function ‘void nfd::Forwarder::onContentStoreMiss(const nfd::Face&, std::shared_ptr<nfd::pit::Entry>, const ndn::Interest&)’:
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:1176:22: warning: unused variable ‘seq’ [-Wunused-variable]
+             uint32_t seq = Simulator::GetContext();
+
+                      ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:1251:20: error: ‘class ns3::MyResultApp’ has no member named ‘m_iReceivedFirstRecentCA’
+       if (nodeApp->m_iReceivedFirstRecentCA==false){//first CAR received
+
+                    ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:1252:18: error: ‘class ns3::MyResultApp’ has no member named ‘m_iReceivedFirstRecentCA’
+         nodeApp->m_iReceivedFirstRecentCA =true;
+
+                  ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:1253:18: error: ‘class ns3::MyResultApp’ has no member named ‘m_myFirstCaReceptionTime’
+         nodeApp->m_myFirstCaReceptionTime =Simulator::Now().GetSeconds();
+
+                  ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp: In member function ‘void nfd::Forwarder::forwardAggregatedMessage(ns3::Ptr<ns3::MyResultApp>, std::shared_ptr<nfd::Face>, std::shared_ptr<nfd::pit::Entry>, std::shared_ptr<nfd::fib::Entry>)’:
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:1288:46: error: ‘class ns3::MyResultApp’ has no member named ‘m_carInFaceVec’
+     for(int i=0; i<this->getNodeApp().first->m_carInFaceVec.size();i++){
+
+                                              ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:1289:76: error: ‘class ns3::MyResultApp’ has no member named ‘m_carInFaceVec’
+       fibEntry->removeNextHop(getFaceTable().get(this->getNodeApp().first->m_carInFaceVec.at(i)));
+
+                                                                            ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:1291:31: error: ‘class ns3::MyResultApp’ has no member named ‘m_carInFaceVec’
+     this->getNodeApp().first->m_carInFaceVec.clear();
+
+                               ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:1297:14: error: ‘class ns3::MyResultApp’ has no member named ‘m_iReceivedFirstRecentCA’
+     nodeApp->m_iReceivedFirstRecentCA =false;
+
+              ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:1298:14: error: ‘class ns3::MyResultApp’ has no member named ‘m_myFirstCaReceptionTime’
+     nodeApp->m_myFirstCaReceptionTime =0;
+
+              ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:1299:46: error: ‘class ns3::MyResultApp’ has no member named ‘m_caInFaceVec’
+     for(int i=0; i<this->getNodeApp().first->m_caInFaceVec.size();i++){
+
+                                              ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:1300:76: error: ‘class ns3::MyResultApp’ has no member named ‘m_caInFaceVec’
+       fibEntry->removeNextHop(getFaceTable().get(this->getNodeApp().first->m_caInFaceVec.at(i)));
+
+                                                                            ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:1302:31: error: ‘class ns3::MyResultApp’ has no member named ‘m_caInFaceVec’
+     this->getNodeApp().first->m_caInFaceVec.clear();
+
+                               ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp: In member function ‘void nfd::Forwarder::routePendingInterests(const ndn::Interest&, std::shared_ptr<nfd::pit::Entry>)’:
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:1350:36: warning: unused variable ‘inRecords2’ [-Wunused-variable]
+     const pit::InRecordCollection& inRecords2 = pendingEntriesIterators.at(i)->getInRecords();
+
+                                    ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp: In member function ‘void nfd::Forwarder::onOutgoingInterest(std::shared_ptr<nfd::pit::Entry>, nfd::Face&, bool)’:
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:1533:31: error: ‘IS_LOOP_TOPO’ was not declared in this scope
+    else if (!ns3::IS_BUTT && !IS_LOOP_TOPO){
+
+                               ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp: In member function ‘void nfd::Forwarder::onInterestFinalize(std::shared_ptr<nfd::pit::Entry>, bool, const milliseconds&)’:
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:1684:31: error: ‘class ns3::MyResultApp’ has no member named ‘m_carInFaceVec’
+     this->getNodeApp().first->m_carInFaceVec.clear();
+
+                               ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:1688:31: error: ‘class ns3::MyResultApp’ has no member named ‘m_iReceivedFirstRecentCA’
+     this->getNodeApp().first->m_iReceivedFirstRecentCA =false;
+
+                               ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:1689:31: error: ‘class ns3::MyResultApp’ has no member named ‘m_myFirstCaReceptionTime’
+     this->getNodeApp().first->m_myFirstCaReceptionTime =0;
+
+                               ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:1691:31: error: ‘class ns3::MyResultApp’ has no member named ‘m_caInFaceVec’
+     this->getNodeApp().first->m_caInFaceVec.clear();
+
+                               ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp: In member function ‘void nfd::Forwarder::onOutgoingData(const ndn::Data&, nfd::Face&)’:
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:2009:30: error: ‘IS_LOOP_TOPO’ was not declared in this scope
+    else if(!ns3::IS_BUTT && !IS_LOOP_TOPO){
+
+                              ^
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp: In member function ‘std::pair<ns3::Ptr<ns3::MyResultApp>, std::__cxx11::basic_string<char> > nfd::Forwarder::getNodeApp()’:
+../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:2261:15: error: ‘IS_LOOP_TOPO’ is not a member of ‘ns3’
+       else if(ns3::IS_LOOP_TOPO){
+
+               ^
+In file included from ./ns3/mybloom_filter.hpp:6:0,
+                 from ./ns3/myresultapp.h:11,
+                 from ns3/ndnSIM/ndn-cxx/data.hpp:35,
+                 from ns3/ndnSIM/ndn-cxx/link.hpp:25,
+                 from ns3/ndnSIM/ndn-cxx/interest.hpp:32,
+                 from ns3/ndnSIM/NFD/common.hpp:63,
+                 from ../src/ndnSIM/NFD/daemon/fw/forwarder.hpp:29,
+                 from ../src/ndnSIM/NFD/daemon/fw/forwarder.cpp:26:
+./ns3/bloom_filter.hpp: In member function ‘bool bloom_filter::operator==(const bloom_filter&)’:
+./ns3/bloom_filter.hpp:124:4: warning: control reaches end of non-void function [-Wreturn-type]
+    }//operator==
+    ^
+
+Waf: Leaving directory `/home/vlado/ndnSIM/ns-3/build'
+Build failed
+ -> task in 'ns3-ndnSIM' failed (exit status 1): 
+	{task 139817945523024: cxx multicast-strategy.cpp -> multicast-strategy.cpp.3.o}
+['/usr/bin/g++', '-std=c++0x', '-std=c++11', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-error=deprecated-declarations', '-fstrict-aliasing', '-Wstrict-aliasing', '-fPIC', '-pthread', '-pthread', '-I.', '-I..', '-Ins3/ndnSIM/NFD', '-I../ns3/ndnSIM/NFD', '-Isrc/ndnSIM/NFD/core', '-I../src/ndnSIM/NFD/core', '-Isrc/ndnSIM/NFD/daemon', '-I../src/ndnSIM/NFD/daemon', '-Isrc/ndnSIM/NFD/rib', '-I../src/ndnSIM/NFD/rib', '-Ins3/ndnSIM', '-I../ns3/ndnSIM', '-Ins3/ndnSIM/ndn-cxx', '-I../ns3/ndnSIM/ndn-cxx', '-I.', '-I..', '-I/usr/include/gtk-2.0', '-I/usr/lib/x86_64-linux-gnu/gtk-2.0/include', '-I/usr/include/gio-unix-2.0', '-I/usr/include/cairo', '-I/usr/include/pango-1.0', '-I/usr/include/atk-1.0', '-I/usr/include/pixman-1', '-I/usr/include/libpng12', '-I/usr/include/gdk-pixbuf-2.0', '-I/usr/include/harfbuzz', '-I/usr/include/glib-2.0', '-I/usr/lib/x86_64-linux-gnu/glib-2.0/include', '-I/usr/include/freetype2', '-I/usr/include', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '-DHAVE_PACKET_H=1', '-DHAVE_IS_DEFAULT_CONSTRUCTIBLE=1', '-DHAVE_IS_NOTHROW_MOVE_CONSTRUCTIBLE=1', '-DHAVE_IS_NOTHROW_MOVE_ASSIGNABLE=1', '-DHAVE_CXX_FRIEND_TYPENAME=1', '-DHAVE_CXX_OVERRIDE_FINAL=1', '-DNDN_CXX_HAVE_VECTOR_INSERT_ERASE_CONST_ITERATOR=1', '-DHAVE_PTHREAD=1', '-DHAVE_SQLITE3=1', '-DHAVE_IF_TUN_H=1', '-DHAVE_SQLITE3=1', '-DHAVE_GTK2=1', '../src/ndnSIM/NFD/daemon/fw/multicast-strategy.cpp', '-c', '-o', '/home/vlado/ndnSIM/ns-3/build/src/ndnSIM/NFD/daemon/fw/multicast-strategy.cpp.3.o']
+ -> task in 'ns3-ndnSIM' failed (exit status 1): 
+	{task 139817945522832: cxx forwarder.cpp -> forwarder.cpp.3.o}
+['/usr/bin/g++', '-std=c++0x', '-std=c++11', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-error=deprecated-declarations', '-fstrict-aliasing', '-Wstrict-aliasing', '-fPIC', '-pthread', '-pthread', '-I.', '-I..', '-Ins3/ndnSIM/NFD', '-I../ns3/ndnSIM/NFD', '-Isrc/ndnSIM/NFD/core', '-I../src/ndnSIM/NFD/core', '-Isrc/ndnSIM/NFD/daemon', '-I../src/ndnSIM/NFD/daemon', '-Isrc/ndnSIM/NFD/rib', '-I../src/ndnSIM/NFD/rib', '-Ins3/ndnSIM', '-I../ns3/ndnSIM', '-Ins3/ndnSIM/ndn-cxx', '-I../ns3/ndnSIM/ndn-cxx', '-I.', '-I..', '-I/usr/include/gtk-2.0', '-I/usr/lib/x86_64-linux-gnu/gtk-2.0/include', '-I/usr/include/gio-unix-2.0', '-I/usr/include/cairo', '-I/usr/include/pango-1.0', '-I/usr/include/atk-1.0', '-I/usr/include/pixman-1', '-I/usr/include/libpng12', '-I/usr/include/gdk-pixbuf-2.0', '-I/usr/include/harfbuzz', '-I/usr/include/glib-2.0', '-I/usr/lib/x86_64-linux-gnu/glib-2.0/include', '-I/usr/include/freetype2', '-I/usr/include', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '-DHAVE_PACKET_H=1', '-DHAVE_IS_DEFAULT_CONSTRUCTIBLE=1', '-DHAVE_IS_NOTHROW_MOVE_CONSTRUCTIBLE=1', '-DHAVE_IS_NOTHROW_MOVE_ASSIGNABLE=1', '-DHAVE_CXX_FRIEND_TYPENAME=1', '-DHAVE_CXX_OVERRIDE_FINAL=1', '-DNDN_CXX_HAVE_VECTOR_INSERT_ERASE_CONST_ITERATOR=1', '-DHAVE_PTHREAD=1', '-DHAVE_SQLITE3=1', '-DHAVE_IF_TUN_H=1', '-DHAVE_SQLITE3=1', '-DHAVE_GTK2=1', '../src/ndnSIM/NFD/daemon/fw/forwarder.cpp', '-c', '-o', '/home/vlado/ndnSIM/ns-3/build/src/ndnSIM/NFD/daemon/fw/forwarder.cpp.3.o']

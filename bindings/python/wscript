@@ -13,7 +13,7 @@ from waflib.Errors import WafError
 # after = TaskGen.after
 
 # https://github.com/named-data-ndnSIM/pybindgen
-REQUIRED_PYBINDGEN_VERSION = '0.17.0.post45+ng4806e4f'
+REQUIRED_PYBINDGEN_VERSION = '0.17.0.post45'
 REQUIRED_PYGCCXML_VERSION = (0, 9, 5)
 
 RUN_ME=-3
