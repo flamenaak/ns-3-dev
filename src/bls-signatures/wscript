@@ -1,0 +1,32 @@
+# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
+# def options(opt):
+#     pass
+
+# def configure(conf):
+#     conf.check_nonfatal(header_name='stdint.h', define_name='HAVE_STDINT_H')
+
+def build(bld):
+    module = bld.create_ns3_module('bls-signatures', ['blst', 'myresultapp'])
+    module.source = [
+        'model/bls-signatures.cc',
+        'helper/bls-signatures-helper.cc',
+        ]
+
+    module_test = bld.create_ns3_module_test_library('bls-signatures')
+    module_test.source = [
+        'test/bls-signatures-test-suite.cc',
+        ]
+
+    headers = bld(features='ns3header')
+    headers.module = 'bls-signatures'
+    headers.source = [
+        'model/bls-signatures.h',
+        'helper/bls-signatures-helper.h',
+        ]
+
+    if bld.env.ENABLE_EXAMPLES:
+        bld.recurse('examples')
+
+    # bld.ns3_python_bindings()
+
