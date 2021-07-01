@@ -10,6 +10,7 @@ def build(bld):
     module = bld.create_ns3_module('bls-signatures', ['blst', 'myresultapp'])
     module.source = [
         'model/bls-signatures.cc',
+        'model/SidPkPair.cc',
         'helper/bls-signatures-helper.cc',
         ]
 
@@ -22,6 +23,11 @@ def build(bld):
     headers.module = 'bls-signatures'
     headers.source = [
         'model/bls-signatures.h',
+        'model/types.hpp',
+        'model/SidPkPair.hpp',
+        'model/SignedMessage.hpp',
+        'model/BloomFilterContainer.hpp',
+        'model/BloomFilterReduction.hpp',
         'helper/bls-signatures-helper.h',
         ]
 

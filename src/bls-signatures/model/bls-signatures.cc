@@ -2,7 +2,7 @@
 
 #include "bls-signatures.h"
 
-namespace ns3 {
+namespace bls_signatures {
 
 /* ... */
 

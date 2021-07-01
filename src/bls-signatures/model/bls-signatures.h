@@ -2,9 +2,11 @@
 #ifndef BLS_SIGNATURES_H
 #define BLS_SIGNATURES_H
 
-namespace ns3 {
+#include "types.hpp"
+// #include "BloomFilterReduction.hpp"
+// #include "SignedMessage.hpp"
 
-/* ... */
+namespace bls_signatures {
 
 }
 
