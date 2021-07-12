@@ -17,6 +17,11 @@ namespace bls_signatures {
         SidPkPair();
         SidPkPair(SignerId signerId, P2_Affine& pk);
         ~SidPkPair();
+
+        void serialize(byte* buffer, size_t bufferSize);
+        void deserialize(byte* data);
+        size_t getByteSize();
+        bool equals(SidPkPair *other);
     };    
 };
 

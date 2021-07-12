@@ -11,6 +11,10 @@ def build(bld):
     module.source = [
         'model/bls-signatures.cc',
         'model/SidPkPair.cc',
+        'model/SignedMessage.cc',
+        'model/BloomFilterContainer.cc',
+        'model/BfXorRepresentation.cc',
+        'model/Signer.cc',
         'helper/bls-signatures-helper.cc',
         ]
 
@@ -27,7 +31,9 @@ def build(bld):
         'model/SidPkPair.hpp',
         'model/SignedMessage.hpp',
         'model/BloomFilterContainer.hpp',
-        'model/BloomFilterReduction.hpp',
+        'model/BfXorRepresentation.hpp',
+        'model/Signer.hpp',
+        'model/BlsInterest.hpp',
         'helper/bls-signatures-helper.h',
         ]
 

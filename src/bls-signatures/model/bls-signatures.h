@@ -3,7 +3,7 @@
 #define BLS_SIGNATURES_H
 
 #include "types.hpp"
-// #include "BloomFilterReduction.hpp"
+// #include "BfXorRepresentation.hpp"
 // #include "SignedMessage.hpp"
 
 namespace bls_signatures {
