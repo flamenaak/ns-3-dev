@@ -14,7 +14,7 @@ namespace bls_signatures {
         unsigned long m_elementCount;
     public:
         BfXorRepresentation(/* args */);
-        BfXorRepresentation(SignerId sid, std::vector<BfIndex> indexVector);
+        BfXorRepresentation(SignerId sid, std::vector<BfIndex> indexVector, size_t elementCount);
         ~BfXorRepresentation();
         SignerId getSignerId();
         std::vector<BfIndex> getIndexVector();

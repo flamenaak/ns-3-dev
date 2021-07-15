@@ -31,11 +31,12 @@ namespace bls_signatures {
     {
         m_reductions.clear();
         m_bloomFilter->clear();
-        if (shouldDelete){
+        if (shouldDelete) {
             delete m_bloomFilter;
-        } else {
+        }
+        else {
             m_bloomFilter = nullptr;
-        }        
+        }
     }
 
     SignerId BloomFilterContainer::getSignerId()
@@ -84,7 +85,7 @@ namespace bls_signatures {
                 j++;
             }
         }
-        BfXorRepresentation* reduction = new BfXorRepresentation(sid, indexVector);
+        BfXorRepresentation* reduction = new BfXorRepresentation(sid, indexVector, filter->element_count());
         m_reductions.push_back(reduction);
 
         delete xorFilter;
@@ -127,6 +128,59 @@ namespace bls_signatures {
         return buffer;
     }
 
+    bool BloomFilterContainer::equals(BloomFilterContainer* other)
+    {
+        if (m_signerId != other->getSignerId()) return false;
+        if (!(*m_bloomFilter == *(other->getBloomFilter()))) return false;
+        if (m_reductions.size() != other->getReductions().size()) return false;
+
+        for (size_t i = 0; i < m_reductions.size(); i++) {
+            if (!m_reductions[i]->equals(other->getReductions()[i])) return false;
+        }
+        return true;
+    }
+
+    /**
+     * @brief like equals but does not care about signerId, only about the content
+     *
+     * @param other
+     * @return true
+     * @return false
+     */
+    bool BloomFilterContainer::shallowEquals(BloomFilterContainer* other)
+    {
+        if (!(*m_bloomFilter == *(other->getBloomFilter()))) return false;
+        if (m_reductions.size() != other->getReductions().size()) return false;
+
+        for (size_t i = 0; i < m_reductions.size(); i++) {
+            if (!m_reductions[i]->shallowEquals(other->getReductions()[i])) return false;
+        }
+        return true;
+    }
+
+    /**
+     * @brief If @param other does not have any BfXorRepresentations, it is added as one into the current BfContainer.
+     * If @param other has the same bf as current, its BfXorRepresentations are moved into the current and an extra
+     * BfXorRepresentation with an empty index array is added
+     * @param other
+     * @return true if merge was allowed
+     * @return false if merge was not allowed
+     */
+    bool BloomFilterContainer::merge(BloomFilterContainer* other)
+    {
+        if (*other->getBloomFilter() == *m_bloomFilter) {
+            for (size_t i = 0; i < other->getReductions().size(); i++) {
+                m_reductions.push_back(other->getReductions()[i]);
+            }
+        }
+        else if (other->getReductions().size() > 0) {
+            return false;
+        }
+        addReduction(other->getBloomFilter(), other->getSignerId());
+
+        return true;
+    }
+
     // ------------------ Serialization --------------------------------
     /**
      * @brief Serialize in following order
@@ -137,8 +191,8 @@ namespace bls_signatures {
      *  m_bloomFilter.table()
      *  m_bloomFilter.salt_count
      *  m_bloomFilter.element_count
-     * @param buffer 
-     * @param bufferSize 
+     * @param buffer
+     * @param bufferSize
      */
     void BloomFilterContainer::serialize(unsigned char* buffer, size_t bufferSize)
     {
@@ -240,45 +294,7 @@ namespace bls_signatures {
             reductionSize += m_reductions[i]->getByteSize();
         }
 
-        return (signerBytes + size_tBytes + reductionSize + size_tBytes + m_bloomFilter->size() / 8  + size_tBytes + size_tBytes);
-    }
-
-    bool BloomFilterContainer::equals(BloomFilterContainer* other)
-    {
-        if (m_signerId != other->getSignerId()) return false;
-        if (!(*m_bloomFilter == *(other->getBloomFilter()))) return false;
-        if (m_reductions.size() != other->getReductions().size()) return false;
-
-        for (size_t i = 0; i < m_reductions.size(); i++) {
-            if (!m_reductions[i]->equals(other->getReductions()[i])) return false;
-        }
-        return true;
-    }
-
-    /**
-     * @brief like equals but does not care about signerId, only about the content
-     * 
-     * @param other 
-     * @return true 
-     * @return false 
-     */
-    bool BloomFilterContainer::shallowEquals(BloomFilterContainer* other)
-    {
-        if (!(*m_bloomFilter == *(other->getBloomFilter()))) return false;
-        if (m_reductions.size() != other->getReductions().size()) return false;
-
-        for (size_t i = 0; i < m_reductions.size(); i++) {
-            if (!m_reductions[i]->shallowEquals(other->getReductions()[i])) return false;
-        }
-        return true;
-    }
-
-    bool BloomFilterContainer::merge(BloomFilterContainer* other)
-    {
-        if (other->getReductions().size() > 0) return false;
-        else addReduction(other->getBloomFilter(), other->getSignerId());
-
-        return true;
+        return (signerBytes + size_tBytes + reductionSize + size_tBytes + m_bloomFilter->size() / 8 + size_tBytes + size_tBytes);
     }
 
     // ------------------ Misc --------------------------------

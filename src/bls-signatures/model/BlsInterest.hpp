@@ -94,8 +94,16 @@ namespace bls_signatures {
         return m_signerList;
     }
 
+    /**
+     * @brief adds a new SidPkPair into the signer list avoiding adding duplicates based on SignerId
+     * 
+     * @param signerPair 
+     */
     void BlsInterest::addSigner(SidPkPair* signerPair)
     {
+        for (size_t i = 0; i < m_signerList.size(); i++) {
+            if (signerPair->m_signerId == m_signerList[i]->m_signerId) return;
+        }
         m_signerList.push_back(signerPair);
     }
 
@@ -143,9 +151,11 @@ namespace bls_signatures {
             }
             else {
                 // this could be added after this for loop to not slow down next iteration
+                printf("Could not reduce bf, the distance is too great: %lu \n", minDistance);
                 m_bloomFilters.push_back(bloomFilter);
             }
         }
+        // merge the signer lists
         for (size_t i = 0; i < other->getSignerList().size(); i++) {
             m_signerList.push_back(other->getSignerList()[i]);
         }
@@ -165,6 +175,7 @@ namespace bls_signatures {
         signatures.push_back(*m_signature);
         BloomFilterContainer* bfContainer;
         BloomFilterContainer* reduction;
+        
         for (size_t i = 0; i < m_bloomFilters.size(); i++) {
             bfContainer = m_bloomFilters[i];
             size_t index = getPublicKeyIndex(bfContainer->getSignerId());
@@ -176,29 +187,16 @@ namespace bls_signatures {
             messages.push_back(SignedMessage(bfContainer->getBloomFilter(), m_signerList[index]->m_pk));
 
             std::vector<BloomFilterContainer*> reconstructed = bfContainer->reconstructBfs();
-            if (bfContainer->getSignerId() == 222) {
-                printf("bf 222 reconstructed count %lu \n", reconstructed.size());
-            }
             for (size_t j = 0; j < reconstructed.size(); j++) {
-                reduction = reconstructed[i];
+                reduction = reconstructed[j];
                 size_t reductionIndex = getPublicKeyIndex(reduction->getSignerId());
-                if (bfContainer->getSignerId() == 222) {
-                    printf("reduction filter:\n");
-                    reduction->printFilter();
-                }
-
                 if (reductionIndex == (size_t)-1) {
                     printf("did not find public key of a reduction \n");
                     return false;
                 }
                 messages.push_back(SignedMessage(reduction->getBloomFilter(), m_signerList[reductionIndex]->m_pk));
             }
-            if (bfContainer->getSignerId() == 222) {
-                printf("Messages: %lu \n", messages.size());
-                printf("Signatures: %lu \n", signatures.size());
-            }
         }
-
         return Signer::verify(messages, signatures);
     }
 

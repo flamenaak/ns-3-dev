@@ -60,7 +60,12 @@ namespace bls_signatures {
         PT* pt = new PT(aggregateSignature);
 
         pairing->commit();
-        return (pairing->finalverify(pt) == 1);
+        bool res = pairing->finalverify(pt) == 1;
+
+        delete pairing;
+        delete pt;
+        
+        return res;
     }
 
     bool Signer::verify(byte* message, size_t size, P1_Affine* signature, P2_Affine pk)

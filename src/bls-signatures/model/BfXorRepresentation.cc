@@ -7,10 +7,11 @@ namespace bls_signatures {
         m_signerId = 0;
     }
 
-    BfXorRepresentation::BfXorRepresentation(SignerId sid, std::vector<BfIndex> indexVector)
+    BfXorRepresentation::BfXorRepresentation(SignerId sid, std::vector<BfIndex> indexVector, size_t elementCount)
     {
         m_indexVector = indexVector;
         m_signerId = sid;
+        m_elementCount = elementCount;
     }
 
     BfXorRepresentation::~BfXorRepresentation()
@@ -34,7 +35,7 @@ namespace bls_signatures {
     void BfXorRepresentation::printIndexVector()
     {
         printf("printing index vector \n");
-        for (std::vector<BfIndex>::iterator it = std::begin(m_indexVector); it != std::end(m_indexVector); ++it) {
+        for (std::vector<BfIndex>::iterator it = m_indexVector.begin(); it != m_indexVector.end(); ++it) {
             printf("%lu; ", *it);
         }
         printf("\n");
