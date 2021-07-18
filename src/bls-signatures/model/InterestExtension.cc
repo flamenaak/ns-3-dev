@@ -1,72 +1,24 @@
+#include "ns3/blst.h"
 #include "ns3/blst.hpp"
+
 #include <string>
 #include <stdlib.h>
 #include "ns3/BloomFilterContainer.hpp"
 #include "ns3/types.hpp"
 #include "ns3/Signer.hpp"
 #include "ns3/SidPkPair.hpp"
+#include "ns3/Interest.hpp"
 
 using namespace blst;
 
-namespace bls_signatures {
-    class BlsInterest
-    {
-    public:
-        enum InterestType : char {
-            CAR, CA
-        };
-
-    private:
-        InterestType m_type;
-        std::vector<BloomFilterContainer*> m_bloomFilters;
-        P1_Affine* m_signature;
-        std::vector<SidPkPair*> m_signerList;
-
-    public:
-        BlsInterest();
-        BlsInterest(InterestType type, P1_Affine* signature);
-        ~BlsInterest();
-        std::string _getTypeString();
-        InterestType _getType() { return m_type; };
-        std::vector<BloomFilterContainer*> _getBloomFilters();
-        std::vector<SidPkPair*> _getSignerList();
-        void _addSigner(SidPkPair* signerPair);
-        P1_Affine* _getSignature();
-
-        void _merge(BlsInterest* other);
-        void _addBloomFilter(BloomFilterContainer* bf);
-        bool _verify();
-        size_t _getPublicKeyIndex(SignerId signerId);
-    };
-
-    BlsInterest::BlsInterest()
-    {
-        m_type = CAR;
-        m_bloomFilters.clear();
-        m_signerList.clear();
-    }
-
-    BlsInterest::BlsInterest(InterestType type, P1_Affine* signature)
-    {
-        m_type = type;
-        m_signature = signature;
-        m_bloomFilters.clear();
-        m_signerList.clear();
-    }
-
-    BlsInterest::~BlsInterest()
-    {
-        m_bloomFilters.~vector();
-        m_signerList.~vector();
-    }
-
-    std::string BlsInterest::_getTypeString()
+namespace ndn {
+    std::string Interest::getTypeString()
     {
         switch (m_type)
         {
-        case BlsInterest::CAR:
+        case Interest::CAR:
             return "CAR";
-        case BlsInterest::CA:
+        case Interest::CA:
             return "CA";
         default:
             break;
@@ -74,22 +26,22 @@ namespace bls_signatures {
         return "";
     }
 
-    std::vector<BloomFilterContainer*> BlsInterest::_getBloomFilters()
+    std::vector<BloomFilterContainer*> Interest::getBloomFilters()
     {
         return m_bloomFilters;
     }
 
-    P1_Affine* BlsInterest::_getSignature()
+    P1_Affine* Interest::getSignature()
     {
         return m_signature;
     }
 
-    void BlsInterest::_addBloomFilter(BloomFilterContainer* bf)
+    void Interest::addBloomFilter(BloomFilterContainer* bf)
     {
         m_bloomFilters.push_back(bf);
     }
 
-    std::vector<SidPkPair*> BlsInterest::_getSignerList()
+    std::vector<SidPkPair*> Interest::getSignerList()
     {
         return m_signerList;
     }
@@ -99,7 +51,7 @@ namespace bls_signatures {
      * 
      * @param signerPair 
      */
-    void BlsInterest::_addSigner(SidPkPair* signerPair)
+    void Interest::addSigner(SidPkPair* signerPair)
     {
         for (size_t i = 0; i < m_signerList.size(); i++) {
             if (signerPair->m_signerId == m_signerList[i]->m_signerId) return;
@@ -107,25 +59,25 @@ namespace bls_signatures {
         m_signerList.push_back(signerPair);
     }
 
-    void BlsInterest::_merge(BlsInterest* other)
+    void Interest::merge(Interest* other)
     {
-        if (m_type != other->_getType()) {
+        if (m_type != other->getType()) {
             printf("not merging, wrong type \n");
             return;
         }
 
-        if (other->_getBloomFilters().size() == 0) {
+        if (other->getBloomFilters().size() == 0) {
             printf("not merging, no bloom filters \n");
             return;
         }
 
-        if (!other->_verify()) {
-            printf("could not verify BlsInterest being merged \n");
+        if (!other->verify()) {
+            printf("could not verify Interest being merged \n");
             return;
         }
 
-        for (size_t i = 0; i < other->_getBloomFilters().size(); i++) {
-            BloomFilterContainer* bloomFilter = other->_getBloomFilters()[i];
+        for (size_t i = 0; i < other->getBloomFilters().size(); i++) {
+            BloomFilterContainer* bloomFilter = other->getBloomFilters()[i];
 
             // find the closest bloomFilter
             unsigned long minDistance = -1;
@@ -156,16 +108,16 @@ namespace bls_signatures {
             }
         }
         // merge the signer lists
-        for (size_t i = 0; i < other->_getSignerList().size(); i++) {
-            m_signerList.push_back(other->_getSignerList()[i]);
+        for (size_t i = 0; i < other->getSignerList().size(); i++) {
+            m_signerList.push_back(other->getSignerList()[i]);
         }
 
         P1 temp = P1(*m_signature);
-        temp.aggregate(*other->_getSignature());
+        temp.aggregate(*other->getSignature());
         m_signature = new P1_Affine(temp);
     }
 
-    bool BlsInterest::_verify()
+    bool Interest::verify()
     {
         std::vector<SignedMessage> messages;
         messages.clear();
@@ -178,7 +130,7 @@ namespace bls_signatures {
         
         for (size_t i = 0; i < m_bloomFilters.size(); i++) {
             bfContainer = m_bloomFilters[i];
-            size_t index = _getPublicKeyIndex(bfContainer->getSignerId());
+            size_t index = getPublicKeyIndex(bfContainer->getSignerId());
 
             if (index == (size_t)-1) {
                 printf("did not find public key of a main container, id: %lu \n", bfContainer->getSignerId());
@@ -189,7 +141,7 @@ namespace bls_signatures {
             std::vector<BloomFilterContainer*> reconstructed = bfContainer->reconstructBfs();
             for (size_t j = 0; j < reconstructed.size(); j++) {
                 reduction = reconstructed[j];
-                size_t reductionIndex = _getPublicKeyIndex(reduction->getSignerId());
+                size_t reductionIndex = getPublicKeyIndex(reduction->getSignerId());
                 if (reductionIndex == (size_t)-1) {
                     printf("did not find public key of a reduction \n");
                     return false;
@@ -200,7 +152,7 @@ namespace bls_signatures {
         return Signer::verify(messages, signatures);
     }
 
-    size_t BlsInterest::_getPublicKeyIndex(SignerId signerId)
+    size_t Interest::getPublicKeyIndex(SignerId signerId)
     {
         for (size_t i = 0; i < m_signerList.size(); i++) {
             //printf("index %lu, signer id %lu \n", i, m_signerList[i]->m_signerId);

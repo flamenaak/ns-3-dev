@@ -626,15 +626,26 @@ void testSignedSerializedData()
   BloomFilterContainer container2 = BloomFilterContainer((SignerId)222);
   BloomFilterContainer container3 = BloomFilterContainer((SignerId)333);
 
+  bloom_filter *m_bloomFilter = new bloom_filter(BF_N, BF_P, BF_SEED);
+  m_bloomFilter->insert("content487877951");
+  BloomFilterContainer container2b = BloomFilterContainer((SignerId)222);
+  container2b.getBloomFilter()->insert("content487877951");
+  assert(m_bloomFilter->contains("content487877951"));
+  assert(container2b.getBloomFilter()->contains("content487877951"));
+
+  
   printf("reducing and serializing following: \n");
-  serialized.insertIntoBf("content1");
-  serialized.insertIntoBf("hello hello hello");
-  container2.insertIntoBf("content487877951");
-  container3.insertIntoBf("some other string which hashes different");
+  serialized.getBloomFilter()->insert("content1");
+  serialized.getBloomFilter()->insert("hello hello hello");
+  container2.getBloomFilter()->insert("content487877951");
+  container3.getBloomFilter()->insert("some other string which hashes different");
 
   serialized.printFilter();
   container2.printFilter();
   container3.printFilter();
+
+  assert(container2.getBloomFilter()->contains("content487877951"));
+  assert(container2.getBloomFilter()->contains("content487877951"));
 
   // ensure we are not testing with same filters
   assert(!(*(serialized.getBloomFilter()) == *(container2.getBloomFilter())));
@@ -702,13 +713,13 @@ void testInterests()
   BloomFilterContainer container5 = BloomFilterContainer((SignerId)555);
   printf("\n \n Testing of BlsInterest \n");
   printf("reducing and serializing following: \n");
-  containerTwoReductions.insertIntoBf("content1");
-  containerTwoReductions.insertIntoBf("hello hello hello");
-  containerOneReduction.insertIntoBf("content487877951");
-  container3.insertIntoBf("some other string which hashes different");
-  container4.insertIntoBf("some other string which hashes different!!");
-  container5.insertIntoBf("some other string which hashes kasdfk");
-  containerNoReductions.insertIntoBf("42");
+  containerTwoReductions.getBloomFilter()->insert("content1");
+  containerTwoReductions.getBloomFilter()->insert("hello hello hello");
+  containerOneReduction.getBloomFilter()->insert("content487877951");
+  container3.getBloomFilter()->insert("some other string which hashes different");
+  container4.getBloomFilter()->insert("some other string which hashes different!!");
+  container5.getBloomFilter()->insert("some other string which hashes kasdfk");
+  containerNoReductions.getBloomFilter()->insert("42");
 
   containerTwoReductions.printFilter();
   containerOneReduction.printFilter();
@@ -745,38 +756,38 @@ void testInterests()
   // P1_Affine* affineSig1 = new P1_Affine(sig1);
   P1_Affine affineSig1 = signer1.sign(&containerTwoReductions).to_affine();
   BlsInterest* interest1 = new BlsInterest(BlsInterest::CAR, &affineSig1);
-  interest1->addBloomFilter(&containerTwoReductions);
-  interest1->addSigner(new SidPkPair(containerTwoReductions.getSignerId(), signer1.getPublicKey()));
-  interest1->addSigner(new SidPkPair(container3.getSignerId(), signer1.getPublicKey()));
-  interest1->addSigner(new SidPkPair(container4.getSignerId(), signer1.getPublicKey()));
+  interest1->_addBloomFilter(&containerTwoReductions);
+  interest1->_addSigner(new SidPkPair(containerTwoReductions.getSignerId(), signer1.getPublicKey()));
+  interest1->_addSigner(new SidPkPair(container3.getSignerId(), signer1.getPublicKey()));
+  interest1->_addSigner(new SidPkPair(container4.getSignerId(), signer1.getPublicKey()));
 
-  assert(interest1->verify());
-  assert(interest1->getBloomFilters().size() == 1);
+  assert(interest1->_verify());
+  assert(interest1->_getBloomFilters().size() == 1);
 
   P1_Affine affineSig2 = signer2.sign(&containerOneReduction).to_affine();
   BlsInterest* interest2 = new BlsInterest(BlsInterest::CAR, &affineSig2);
-  interest2->addBloomFilter(&containerOneReduction);
-  interest2->addSigner(new SidPkPair(containerOneReduction.getSignerId(), signer2.getPublicKey()));
-  interest2->addSigner(new SidPkPair(container5.getSignerId(), signer2.getPublicKey()));
-  assert(interest2->getBloomFilters().size() == 1);
-  assert(interest2->verify());
+  interest2->_addBloomFilter(&containerOneReduction);
+  interest2->_addSigner(new SidPkPair(containerOneReduction.getSignerId(), signer2.getPublicKey()));
+  interest2->_addSigner(new SidPkPair(container5.getSignerId(), signer2.getPublicKey()));
+  assert(interest2->_getBloomFilters().size() == 1);
+  assert(interest2->_verify());
 
   P1_Affine affineSig3 = signer3.sign(&containerNoReductions).to_affine();
   BlsInterest* interest3 = new BlsInterest(BlsInterest::CAR, &affineSig3);
-  interest3->addBloomFilter(&containerNoReductions);
-  interest3->addSigner(new SidPkPair(containerNoReductions.getSignerId(), signer3.getPublicKey()));
-  assert(interest3->getBloomFilters().size() == 1);
-  assert(interest3->verify());
+  interest3->_addBloomFilter(&containerNoReductions);
+  interest3->_addSigner(new SidPkPair(containerNoReductions.getSignerId(), signer3.getPublicKey()));
+  assert(interest3->_getBloomFilters().size() == 1);
+  assert(interest3->_verify());
 
   // merging of two interest with reductions means preserving both of the bf containers
-  interest1->merge(interest2);
-  assert(interest1->verify());
-  assert(interest1->getBloomFilters().size() == 2);
+  interest1->_merge(interest2);
+  assert(interest1->_verify());
+  assert(interest1->_getBloomFilters().size() == 2);
 
   // merging of two interest one of which has no reductions means we can reduce the second bf container
-  interest1->merge(interest3);
-  assert(interest1->verify());
-  assert(interest1->getBloomFilters().size() == 2);
+  interest1->_merge(interest3);
+  assert(interest1->_verify());
+  assert(interest1->_getBloomFilters().size() == 2);
 }
 
 int main(int argc, char* argv[])

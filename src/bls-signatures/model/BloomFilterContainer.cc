@@ -54,6 +54,11 @@ namespace bls_signatures {
         m_bloomFilter->insert(text);
     }
 
+    bool BloomFilterContainer::bfContains(std::string text)
+    {
+        return m_bloomFilter->contains(text);
+    }
+
     std::vector<BfXorRepresentation*> BloomFilterContainer::getReductions()
     {
         return m_reductions;

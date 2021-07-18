@@ -25,6 +25,7 @@ namespace bls_signatures {
         SignerId getSignerId();
         bloom_filter* getBloomFilter();
         void insertIntoBf(std::string text);
+        bool bfContains(std::string text);
         std::vector<BfXorRepresentation*> getReductions();
 
         void addReduction(BfXorRepresentation* reduction);
