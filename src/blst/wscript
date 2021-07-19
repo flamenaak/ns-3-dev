@@ -13,7 +13,7 @@ def configure(conf):
     lib='blst',uselib_store='LIB_BLST')
 
 def build(bld):
-    module = bld.create_ns3_module('blst', ['core',  'point-to-point-layout', 'myresultapp'])
+    module = bld.create_ns3_module('blst', ['core',  'point-to-point-layout'])
     module.source = [
         'model/blst.cc',
         'helper/blst-helper.cc',

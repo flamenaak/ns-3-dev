@@ -3,8 +3,7 @@
 
 #include <stdlib.h>
 #include "ns3/blst.h"
-#include "ns3/myresultapp.h"
-
+#include "ns3/bloom_filter.hpp"
 using namespace blst;
 
 namespace bls_signatures {

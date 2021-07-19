@@ -3,7 +3,7 @@
 
 #include "ns3/blst.h"
 #include "types.hpp"
-#include "ns3/myresultapp.h"
+#include "ns3/bloom_filter.hpp"
 #include "ns3/BfXorRepresentation.hpp"
 #include <memory>
 

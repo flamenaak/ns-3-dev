@@ -2,7 +2,6 @@
 #include "ns3/core-module.h"
 #include "ns3/bls-signatures-helper.h"
 #include "ns3/blst.h"
-#include "ns3/myresultapp.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <array>
@@ -16,11 +15,12 @@
 #include "ns3/Signer.hpp"
 #include "ns3/BlsInterest.hpp"
 #include "ns3/types.hpp"
+#include "ns3/bloom_filter.hpp"
 
 using namespace ns3;
 using namespace blst;
 using namespace bls_signatures;
-//using namespace std;
+using namespace std;
 
 void printByte(unsigned char n)
 {

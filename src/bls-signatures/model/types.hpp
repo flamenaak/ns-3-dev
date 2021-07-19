@@ -1,8 +1,10 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include "ns3/myresultapp.h"
 #include <math.h>
+#include <stdio.h>
+
+using namespace std;
 
 namespace bls_signatures {
     typedef long SignerId;
@@ -20,7 +22,7 @@ namespace bls_signatures {
     // Maximum distance of two BFs that allows efficient XorRepresentation
     const int DELTA_MAX = log2(BF_M);
 
-    const size_t BF_SEED = ns3::UNIVERSAL_SEED;
+    const size_t BF_SEED = 10UL;
 
     const size_t PK_SIZE = 192;
 }

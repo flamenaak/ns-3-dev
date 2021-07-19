@@ -2,9 +2,10 @@
 #define SIGNER_H
 
 #include "ns3/blst.h"
-#include "ns3/myresultapp.h"
+#include "ns3/bloom_filter.hpp"
 #include "ns3/BloomFilterContainer.hpp"
 #include "ns3/SignedMessage.hpp"
+#include <stdio.h>
 
 using namespace blst;
 
@@ -31,7 +32,7 @@ namespace bls_signatures {
 
         static bool verify(std::vector<SignedMessage> messages, std::vector<P1_Affine> signatures);
         static bool verify(byte* message, size_t size, P1_Affine* signature, P2_Affine pk);
-        static P1_Affine aggregateSignatures(vector<P1_Affine> signatures);
+        static P1_Affine aggregateSignatures(std::vector<P1_Affine> signatures);
 
     };
 }

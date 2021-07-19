@@ -73,11 +73,11 @@ namespace bls_signatures {
         return (signature->core_verify(pk, 1, message, size) == BLST_SUCCESS);
     }
 
-    P1_Affine Signer::aggregateSignatures(vector<P1_Affine> signatures)
+    P1_Affine Signer::aggregateSignatures(std::vector<P1_Affine> signatures)
     {
-        vector<P1_Affine>::iterator it = signatures.begin();
+        std::vector<P1_Affine>::iterator it = signatures.begin();
         P1 res;
-        for (vector<P1_Affine>::iterator it = signatures.begin(); it < signatures.end(); it++)
+        for (std::vector<P1_Affine>::iterator it = signatures.begin(); it < signatures.end(); it++)
         {
             res.aggregate(*it);
         }
@@ -90,7 +90,7 @@ namespace bls_signatures {
     {
         blst::byte i = 0;
         while (i < 8) {
-            printf("%i", n & 1);
+            std::printf("%i", n & 1);
             n >>= 1;
             i++;
         }
@@ -102,6 +102,6 @@ namespace bls_signatures {
             //printf("%i", filter->table()[i]);
             printByte(m_bloomFilter->table()[i]);
         }
-        printf("\n");
+        std::printf("\n");
     }
 }
