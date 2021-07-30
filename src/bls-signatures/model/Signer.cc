@@ -6,17 +6,16 @@ namespace bls_signatures {
 
     }
 
-    Signer::Signer(byte seed[32], size_t size)
+    Signer::Signer(byte seed[32], size_t seedSize)
     {
         m_sk = new SecretKey();
-        m_sk->keygen(seed, size);
+        m_sk->keygen(seed, seedSize);
         P2 pk(*m_sk);
         m_pk = new P2_Affine(pk);
     }
 
     Signer::~Signer()
     {
-        delete m_pk;
     }
 
     P2_Affine& Signer::getPublicKey()

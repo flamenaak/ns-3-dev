@@ -17,6 +17,8 @@
 #include "ns3/types.hpp"
 #include "ns3/bloom_filter.hpp"
 
+#include "ns3/FilterStore.hpp"
+
 using namespace ns3;
 using namespace blst;
 using namespace bls_signatures;
@@ -626,14 +628,14 @@ void testSignedSerializedData()
   BloomFilterContainer container2 = BloomFilterContainer((SignerId)222);
   BloomFilterContainer container3 = BloomFilterContainer((SignerId)333);
 
-  bloom_filter *m_bloomFilter = new bloom_filter(BF_N, BF_P, BF_SEED);
+  bloom_filter* m_bloomFilter = new bloom_filter(BF_N, BF_P, BF_SEED);
   m_bloomFilter->insert("content487877951");
   BloomFilterContainer container2b = BloomFilterContainer((SignerId)222);
   container2b.getBloomFilter()->insert("content487877951");
   assert(m_bloomFilter->contains("content487877951"));
   assert(container2b.getBloomFilter()->contains("content487877951"));
 
-  
+
   printf("reducing and serializing following: \n");
   serialized.getBloomFilter()->insert("content1");
   serialized.getBloomFilter()->insert("hello hello hello");
@@ -790,39 +792,91 @@ void testInterests()
   assert(interest1->_getBloomFilters().size() == 2);
 }
 
+void testFilterStore()
+{
+  bloom_filter* filter1 = new bloom_filter(BF_N, BF_P, BF_SEED);
+  bloom_filter* filter2 = new bloom_filter(BF_N, BF_P, BF_SEED);
+  bloom_filter* filter3 = new bloom_filter(BF_N, BF_P, BF_SEED);
+  filter1->clear();
+  filter2->clear();
+  filter3->clear();
+  string str1 = "content1";
+  string str2 = "some other string which hashes different";
+  string str3 = "content that should be very different";
+  filter1->insert(str1);
+  filter2->insert(str2);
+  filter3->insert(str3);
+
+  FilterStore store = *(new FilterStore());
+  size_t index = store.insertFilterPair(filter1, 1);
+  size_t index2 = store.insertFilterPair(filter2, 1);
+  size_t index3 = store.insertFilterPair(filter3, 3);
+  pair<bloom_filter*, int> piar = store.getFilterPair(index);
+  pair<bloom_filter*, int> piar2 = store.getFilterPair(index2);
+  pair<bloom_filter*, int> piar3 = store.getFilterPair(index3);
+
+  printf("FaceId %i \n", piar.second);
+  printFilter(piar.first);
+  assert(*filter1 == *piar.first);
+  assert(filter1 != piar.first);
+
+  assert(*filter2 == *piar2.first);
+  assert(filter2 != piar2.first);
+
+  assert(*filter3 == *piar3.first);
+  assert(filter3 != piar3.first);
+  assert(store.getSize() == 3);
+  
+  // index out of bounds, so no deltion
+  store.deleteEntry(4);
+  assert(store.getSize() == 3);
+
+  // since the indexes are not renewed on removal, ofc the order of deletion by index must be [2,1,0]
+  store.deleteEntry(index3);
+  assert(store.getSize() == 2);
+
+  store.deleteEntry(index2);
+  assert(store.getSize() == 1);
+
+  store.deleteEntry(index);
+  assert(store.getSize() == 0);
+}
+
 int main(int argc, char* argv[])
 {
   // Test signatures
-  testEncryption();
+  // testEncryption();
 
-  // Test BfXorRepresentation
-  testBfReductions();
+  // // Test BfXorRepresentation
+  // testBfReductions();
 
-  // Test BfXorRepresentation serialization + deserialization
-  testBfReductionSerDeser();
-
-
-  // Test BloomFilterContainer
-  testBfContainer();
+  // // Test BfXorRepresentation serialization + deserialization
+  // testBfReductionSerDeser();
 
 
-  // Test BfContainer serialize + deserialize
-  testBfContainerSerDeser();
+  // // Test BloomFilterContainer
+  // testBfContainer();
 
-  // Test SidPkPair with serialization
-  testSidPkPair();
 
-  // 
-  testSigner();
+  // // Test BfContainer serialize + deserialize
+  // testBfContainerSerDeser();
 
-  // testSignerWithReductions
-  testSignerWithReductions();
+  // // Test SidPkPair with serialization
+  // testSidPkPair();
 
-  //
-  testSignedSerializedData();
+  // // 
+  // testSigner();
 
-  //
-  testInterests();
+  // // testSignerWithReductions
+  // testSignerWithReductions();
+
+  // //
+  // testSignedSerializedData();
+
+  // //
+  // testInterests();
+
+  testFilterStore();
 
   printf("Size of bloom filters is set to: %i and DELTA_MAX is %i \n", BF_M, DELTA_MAX);
 

@@ -15,6 +15,7 @@ def build(bld):
         'model/BloomFilterContainer.cc',
         'model/BfXorRepresentation.cc',
         'model/Signer.cc',
+        'model/FilterStore.cc',
         'helper/bls-signatures-helper.cc',
         ]
 
@@ -34,6 +35,7 @@ def build(bld):
         'model/BfXorRepresentation.hpp',
         'model/Signer.hpp',
         'model/BlsInterest.hpp',
+        'model/FilterStore.hpp',
         'helper/bls-signatures-helper.h',
         ]
 
