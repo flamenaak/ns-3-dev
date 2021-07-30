@@ -125,14 +125,14 @@ public:
         }//if
         //NS_LOG_UNCOND("going to return false");
         //NS_LOG_UNCOND("filter.bit_table_ = "<<filter.bit_table_ <<"    and bit_table_ = "<<bit_table_);
-
+      return false;
    }//operator==
 
    virtual ~bloom_filter()
    {
-      printf("destructing bf %p with bit table location: %p\n", this, bit_table_);
+      //printf("destructing bf %p with bit table location: %p\n", this, bit_table_);
       delete[] bit_table_;
-      printf("success in destructing bf %p \n", this);
+      //printf("success in destructing bf %p \n", this);
    }
 
     inline void delete_bitTable()

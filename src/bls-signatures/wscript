@@ -1,0 +1,46 @@
+# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
+# def options(opt):
+#     pass
+
+# def configure(conf):
+#     conf.check_nonfatal(header_name='stdint.h', define_name='HAVE_STDINT_H')
+
+def build(bld):
+    module = bld.create_ns3_module('bls-signatures', ['blst'])
+    module.source = [
+        'model/bls-signatures.cc',
+        'model/SidPkPair.cc',
+        'model/SignedMessage.cc',
+        'model/BloomFilterContainer.cc',
+        'model/BfXorRepresentation.cc',
+        'model/Signer.cc',
+        'model/FilterStore.cc',
+        'helper/bls-signatures-helper.cc',
+        ]
+
+    module_test = bld.create_ns3_module_test_library('bls-signatures')
+    module_test.source = [
+        'test/bls-signatures-test-suite.cc',
+        ]
+
+    headers = bld(features='ns3header')
+    headers.module = 'bls-signatures'
+    headers.source = [
+        'model/bls-signatures.h',
+        'model/types.hpp',
+        'model/SidPkPair.hpp',
+        'model/SignedMessage.hpp',
+        'model/BloomFilterContainer.hpp',
+        'model/BfXorRepresentation.hpp',
+        'model/Signer.hpp',
+        'model/BlsInterest.hpp',
+        'model/FilterStore.hpp',
+        'helper/bls-signatures-helper.h',
+        ]
+
+    if bld.env.ENABLE_EXAMPLES:
+        bld.recurse('examples')
+
+    # bld.ns3_python_bindings()
+
