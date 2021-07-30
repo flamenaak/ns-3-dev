@@ -6,13 +6,19 @@
 # def configure(conf):
 #     conf.check_nonfatal(header_name='stdint.h', define_name='HAVE_STDINT_H')
 
+def configure(conf):
+    conf.env['ENABLE_blst']=conf.check(mandatory=True,
+    libpath=['/home/vlado/ndnSIM/ns-3/src/blst/blst'],
+    includes=['/home/vlado/ndnSIM/ns-3/src/blst/blst'],
+    lib='blst',uselib_store='LIB_BLST')
+
 def build(bld):
-    module = bld.create_ns3_module('blst', ['core',  'point-to-point-layout', 'myresultapp'])
+    module = bld.create_ns3_module('blst', ['core',  'point-to-point-layout'])
     module.source = [
         'model/blst.cc',
         'helper/blst-helper.cc',
         ]
-
+    module.use.append('LIB_BLST')
     module_test = bld.create_ns3_module_test_library('blst')
     module_test.source = [
         'test/blst-test-suite.cc',
@@ -22,6 +28,7 @@ def build(bld):
     headers.module = 'blst'
     headers.source = [
         'model/blst.h',
+        'model/bloom_filter.hpp',
         'helper/blst-helper.h',
         ]
 
