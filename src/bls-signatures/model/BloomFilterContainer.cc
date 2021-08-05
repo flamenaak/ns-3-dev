@@ -173,14 +173,27 @@ namespace bls_signatures {
      */
     bool BloomFilterContainer::merge(BloomFilterContainer* other)
     {
+        if (this == other) return true;
+
+        //printf("BloomFilterContainer::merge: entered method, size of m_reductions: %lu other.getReductions().size(): %lu\n", m_reductions.size(), other->getReductions().size());
         if (*other->getBloomFilter() == *m_bloomFilter) {
+            //printf("BloomFilterContainer::merge: same filters \n");
             for (size_t i = 0; i < other->getReductions().size(); i++) {
+                //printf("BloomFilterContainer::merge: in the for loop \n");
+                if (this == other) {
+                    //printf("BloomFilterContainer::merge: this == other, reduction sizes %lu %lu \n", m_reductions.size(), other->getReductions().size());  
+                }
                 m_reductions.push_back(other->getReductions()[i]);
+                //printf("BloomFilterContainer::merge: size of m_reductions: %lu other.getReductions().size(): %lu\n", m_reductions.size(), other->getReductions().size());
+
             }
+            //printf("BloomFilterContainer::merge: for loop done \n");
         }
         else if (other->getReductions().size() > 0) {
+            //printf("BloomFilterContainer::merge: cannot merge \n");
             return false;
         }
+        //printf("adding reduction \n");
         addReduction(other->getBloomFilter(), other->getSignerId());
 
         return true;
