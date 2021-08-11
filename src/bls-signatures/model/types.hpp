@@ -15,7 +15,7 @@ namespace bls_signatures {
     const int bfIndexBytes = sizeof(BfIndex) / sizeof(unsigned char);
 
     // Bloom filter parameters
-    const double BF_P = 0.001;
+    const double BF_P = 0.01;
     const int BF_N = 10;
     const int BF_M = ceil(-((BF_N * log(BF_P)) / pow(log(2), 2))/8)*8;
 
@@ -26,8 +26,10 @@ namespace bls_signatures {
 
     const size_t PK_SIZE = 192;
 
+    const long AGGREGATION_TIMER = 400;
+
     enum class BlsNodeType {
-        SERVER, CLIENT
+        SERVER, CLIENT, ROUTER
     };
 }
 

@@ -119,7 +119,7 @@ void testEncryption()
   // printf("pk: %s \n", arr.data());
 
   // Test SidPkPair
-  SidPkPair pair1((long)123, *affine_pk1);
+  SidPkPair pair1((long)123, affine_pk1);
   printf("signer id: %li \n", pair1.m_signerId);
   //printf("public key: %s \n", charr);
 
@@ -432,9 +432,9 @@ void testSidPkPair()
   P2_Affine* affine_pk1 = new P2_Affine(*pk1);
   P2_Affine* affine_pk2 = new P2_Affine(*pk2);
 
-  SidPkPair pair1((SignerId)111, *affine_pk1);
-  SidPkPair pair2((SignerId)222, *affine_pk2);
-  SidPkPair pair4((SignerId)111, *affine_pk2);
+  SidPkPair pair1((SignerId)111, affine_pk1);
+  SidPkPair pair2((SignerId)222, affine_pk2);
+  SidPkPair pair4((SignerId)111, affine_pk2);
 
   printf("initialized everything \n");
 
@@ -494,8 +494,8 @@ void testSigner()
   assert(affine_signature1->in_group() == 1);
   assert(affine_signature2->in_group() == 1);
 
-  assert(affine_signature1->core_verify(signer.getPublicKey(), 1, filter1->bit_table_, filter1->size() / 8) == BLST_SUCCESS);
-  assert(affine_signature2->core_verify(signer.getPublicKey(), 1, filter1->bit_table_, filter1->size() / 8) == BLST_SUCCESS);
+  assert(affine_signature1->core_verify(*signer.getPublicKey(), 1, filter1->bit_table_, filter1->size() / 8) == BLST_SUCCESS);
+  assert(affine_signature2->core_verify(*signer.getPublicKey(), 1, filter1->bit_table_, filter1->size() / 8) == BLST_SUCCESS);
 
   assert(sig1.is_equal(sig1a));
   assert(sig1.is_equal(sig2));
@@ -505,8 +505,8 @@ void testSigner()
   assert(!sig1.is_equal(sig5));
 
   vector<SignedMessage> messages;
-  SignedMessage m1 = SignedMessage(filter1, &signer.getPublicKey());
-  SignedMessage m2 = SignedMessage(filter2, &signer2.getPublicKey());
+  SignedMessage m1 = SignedMessage(filter1, signer.getPublicKey());
+  SignedMessage m2 = SignedMessage(filter2, signer2.getPublicKey());
   messages.push_back(m1);
   messages.push_back(m2);
 
@@ -515,6 +515,22 @@ void testSigner()
   signatures.push_back(*affine_signature6);
 
   assert(Signer::verify(messages, signatures));
+
+  // testing with serialized SidPkPair
+  SidPkPair pair1((SignerId)1, signer.getPublicKey());
+  byte pairData[pair1.getByteSize()];
+  pair1.serialize(pairData, pair1.getByteSize());
+  SidPkPair deserializedPair = SidPkPair();
+  deserializedPair.deserialize(pairData);
+
+  SignedMessage m3 = SignedMessage(filter1, deserializedPair.m_pk);
+  vector<SignedMessage> messages2;
+  messages2.push_back(m3);
+
+  vector<P1_Affine> signatures2;
+  signatures2.push_back(*affine_signature1);
+
+  assert(Signer::verify(messages2, signatures2));
 
 #pragma region signature_logging
   // byte sigser[96];
@@ -568,7 +584,7 @@ void testSignerWithReductions()
   P1 sig1 = signer.sign(&container);
   P1_Affine* affine_signature1 = new P1_Affine(sig1);
   assert(affine_signature1->in_group() == 1);
-  assert(affine_signature1->core_verify(signer.getPublicKey(), 1, filter1->table(), filter1->size() / 8) == BLST_SUCCESS);
+  assert(affine_signature1->core_verify(*signer.getPublicKey(), 1, filter1->table(), filter1->size() / 8) == BLST_SUCCESS);
 
   container.addReduction(filter2, (SignerId)222);
   P1 sig2 = signer.sign(&container);
@@ -577,8 +593,8 @@ void testSignerWithReductions()
   assert(affine_signature1->is_equal(*affine_signature2) == 0);
 
   vector<SignedMessage> messages;
-  SignedMessage m1 = SignedMessage(filter1, &signer.getPublicKey());
-  SignedMessage m2 = SignedMessage(filter2, &signer.getPublicKey());
+  SignedMessage m1 = SignedMessage(filter1, signer.getPublicKey());
+  SignedMessage m2 = SignedMessage(filter2, signer.getPublicKey());
   messages.push_back(m1);
   messages.push_back(m2);
 
@@ -663,10 +679,10 @@ void testSignedSerializedData()
 
   // check the validity of single signatures
 
-  assert(Signer::verify((byte*)serialized.getBloomFilter()->table(), serialized.getBloomFilter()->size() / 8, affine_signature1, signer1.getPublicKey()));
-  assert(affine_signature1->core_verify(signer1.getPublicKey(), 1, serialized.getBloomFilter()->table(), serialized.getBloomFilter()->size() / 8) == BLST_SUCCESS);
-  assert(affine_signature2->core_verify(signer2.getPublicKey(), 1, container2.getBloomFilter()->table(), container2.getBloomFilter()->size() / 8) == BLST_SUCCESS);
-  assert(affine_signature3->core_verify(signer3.getPublicKey(), 1, container3.getBloomFilter()->table(), container3.getBloomFilter()->size() / 8) == BLST_SUCCESS);
+  assert(Signer::verify((byte*)serialized.getBloomFilter()->table(), serialized.getBloomFilter()->size() / 8, affine_signature1, *signer1.getPublicKey()));
+  assert(affine_signature1->core_verify(*signer1.getPublicKey(), 1, serialized.getBloomFilter()->table(), serialized.getBloomFilter()->size() / 8) == BLST_SUCCESS);
+  assert(affine_signature2->core_verify(*signer2.getPublicKey(), 1, container2.getBloomFilter()->table(), container2.getBloomFilter()->size() / 8) == BLST_SUCCESS);
+  assert(affine_signature3->core_verify(*signer3.getPublicKey(), 1, container3.getBloomFilter()->table(), container3.getBloomFilter()->size() / 8) == BLST_SUCCESS);
 
 
   // TODO create: addReduction(BloomFilterContainer container)
@@ -681,7 +697,7 @@ void testSignedSerializedData()
   deserialized.deserialize(buffer);
 
   assert(serialized.equals(&deserialized));
-  assert(affine_signature1->core_verify(signer1.getPublicKey(), 1, deserialized.getBloomFilter()->table(), deserialized.getBloomFilter()->size() / 8) == BLST_SUCCESS);
+  assert(affine_signature1->core_verify(*signer1.getPublicKey(), 1, deserialized.getBloomFilter()->table(), deserialized.getBloomFilter()->size() / 8) == BLST_SUCCESS);
 
   std::vector<BloomFilterContainer*> reconstructed = deserialized.reconstructBfs();
 
@@ -692,13 +708,13 @@ void testSignedSerializedData()
     container->printFilter();
     // this is the quickest way to do it, I guess
     if (container->getSignerId() == (SignerId)222) {
-      assert(Signer::verify(container->getBloomFilter()->bit_table_, container->getBloomFilter()->size() / 8, affine_signature2, signer2.getPublicKey()));
-      assert(affine_signature2->core_verify(signer2.getPublicKey(), 1, container->getBloomFilter()->table(), container->getBloomFilter()->size() / 8) == BLST_SUCCESS);
+      assert(Signer::verify(container->getBloomFilter()->bit_table_, container->getBloomFilter()->size() / 8, affine_signature2, *signer2.getPublicKey()));
+      assert(affine_signature2->core_verify(*signer2.getPublicKey(), 1, container->getBloomFilter()->table(), container->getBloomFilter()->size() / 8) == BLST_SUCCESS);
       assert(container->getBloomFilter()->contains("content487877951"));
     }
     else {
-      assert(Signer::verify(container->getBloomFilter()->bit_table_, container->getBloomFilter()->size() / 8, affine_signature3, signer3.getPublicKey()));
-      assert(affine_signature3->core_verify(signer3.getPublicKey(), 1, container->getBloomFilter()->table(), container->getBloomFilter()->size() / 8) == BLST_SUCCESS);
+      assert(Signer::verify(container->getBloomFilter()->bit_table_, container->getBloomFilter()->size() / 8, affine_signature3, *signer3.getPublicKey()));
+      assert(affine_signature3->core_verify(*signer3.getPublicKey(), 1, container->getBloomFilter()->table(), container->getBloomFilter()->size() / 8) == BLST_SUCCESS);
       assert(container->getBloomFilter()->contains("some other string which hashes different"));
     }
   }
@@ -758,38 +774,40 @@ void testInterests()
   // P1_Affine* affineSig1 = new P1_Affine(sig1);
   P1_Affine affineSig1 = signer1.sign(&containerTwoReductions).to_affine();
   BlsInterest* interest1 = new BlsInterest(BlsInterest::CAR, &affineSig1);
-  interest1->_addBloomFilter(&containerTwoReductions);
-  interest1->_addSigner(new SidPkPair(containerTwoReductions.getSignerId(), signer1.getPublicKey()));
-  interest1->_addSigner(new SidPkPair(container3.getSignerId(), signer1.getPublicKey()));
-  interest1->_addSigner(new SidPkPair(container4.getSignerId(), signer1.getPublicKey()));
+  interest1->addBloomFilter(&containerTwoReductions);
+  interest1->addSigner(new SidPkPair(containerTwoReductions.getSignerId(), signer1.getPublicKey()));
+  interest1->addSigner(new SidPkPair(container3.getSignerId(), signer1.getPublicKey()));
+  interest1->addSigner(new SidPkPair(container4.getSignerId(), signer1.getPublicKey()));
 
-  assert(interest1->_verify());
-  assert(interest1->_getBloomFilters().size() == 1);
+  assert(interest1->verify(vector<SidPkPair*>()));
+  assert(interest1->getBloomFilters().size() == 1);
 
   P1_Affine affineSig2 = signer2.sign(&containerOneReduction).to_affine();
   BlsInterest* interest2 = new BlsInterest(BlsInterest::CAR, &affineSig2);
-  interest2->_addBloomFilter(&containerOneReduction);
-  interest2->_addSigner(new SidPkPair(containerOneReduction.getSignerId(), signer2.getPublicKey()));
-  interest2->_addSigner(new SidPkPair(container5.getSignerId(), signer2.getPublicKey()));
-  assert(interest2->_getBloomFilters().size() == 1);
-  assert(interest2->_verify());
+  interest2->addBloomFilter(&containerOneReduction);
+  interest2->addSigner(new SidPkPair(containerOneReduction.getSignerId(), signer2.getPublicKey()));
+  interest2->addSigner(new SidPkPair(container5.getSignerId(), signer2.getPublicKey()));
+  assert(interest2->getBloomFilters().size() == 1);
+  assert(interest2->verify(vector<SidPkPair*>()));
 
   P1_Affine affineSig3 = signer3.sign(&containerNoReductions).to_affine();
   BlsInterest* interest3 = new BlsInterest(BlsInterest::CAR, &affineSig3);
-  interest3->_addBloomFilter(&containerNoReductions);
-  interest3->_addSigner(new SidPkPair(containerNoReductions.getSignerId(), signer3.getPublicKey()));
-  assert(interest3->_getBloomFilters().size() == 1);
-  assert(interest3->_verify());
+  interest3->addBloomFilter(&containerNoReductions);
+  interest3->addSigner(new SidPkPair(containerNoReductions.getSignerId(), signer3.getPublicKey()));
+  assert(interest3->getBloomFilters().size() == 1);
+  assert(interest3->verify(vector<SidPkPair*>()));
 
   // merging of two interest with reductions means preserving both of the bf containers
-  interest1->_merge(interest2);
-  assert(interest1->_verify());
-  assert(interest1->_getBloomFilters().size() == 2);
+  interest1->merge(interest2);
+  assert(interest1->verify(vector<SidPkPair*>()));
+  assert(interest1->getBloomFilters().size() == 2);
 
   // merging of two interest one of which has no reductions means we can reduce the second bf container
-  interest1->_merge(interest3);
-  assert(interest1->_verify());
-  assert(interest1->_getBloomFilters().size() == 2);
+  interest1->merge(interest3);
+  assert(interest1->verify(vector<SidPkPair*>()));
+  assert(interest1->getBloomFilters().size() == 2);
+
+  printf("how many BFs %lu \n", interest1->getAllBloomFilters().size());
 }
 
 void testFilterStore()
@@ -844,39 +862,39 @@ void testFilterStore()
 
 int main(int argc, char* argv[])
 {
-  // Test signatures
-  testEncryption();
+  // // Test signatures
+  // testEncryption();
 
-  // Test BfXorRepresentation
-  testBfReductions();
+  // // Test BfXorRepresentation
+  // testBfReductions();
 
-  // Test BfXorRepresentation serialization + deserialization
-  testBfReductionSerDeser();
-
-
-  // Test BloomFilterContainer
-  testBfContainer();
+  // // Test BfXorRepresentation serialization + deserialization
+  // testBfReductionSerDeser();
 
 
-  // Test BfContainer serialize + deserialize
-  testBfContainerSerDeser();
+  // // Test BloomFilterContainer
+  // testBfContainer();
 
-  // Test SidPkPair with serialization
-  testSidPkPair();
 
-  // 
-  testSigner();
+  // // Test BfContainer serialize + deserialize
+  // testBfContainerSerDeser();
 
-  // testSignerWithReductions
-  testSignerWithReductions();
+  // // Test SidPkPair with serialization
+  // testSidPkPair();
 
-  //
-  testSignedSerializedData();
+  // // 
+  // testSigner();
+
+  // // testSignerWithReductions
+  // testSignerWithReductions();
+
+  // //
+  // testSignedSerializedData();
 
   //
   testInterests();
 
-  testFilterStore();
+  // testFilterStore();
 
   printf("Size of bloom filters is set to: %i and DELTA_MAX is %i \n", BF_M, DELTA_MAX);
 

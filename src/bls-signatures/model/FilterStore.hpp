@@ -23,6 +23,7 @@ namespace ns3 {
         // vector<int> getFaces();
 
         pair<bloom_filter*, int> getFilterPair(size_t index);
+        vector<int> matchFilterToFaces(bloom_filter* filter);
         size_t insertFilterPair(bloom_filter* filter, int faceId);
         size_t insertFilterPair(bloom_filter filter, int faceId);
         void deleteEntry(size_t index);

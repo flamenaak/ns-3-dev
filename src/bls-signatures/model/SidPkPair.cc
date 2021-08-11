@@ -7,9 +7,9 @@ namespace bls_signatures {
         m_signerId = 0;
     }
 
-    SidPkPair::SidPkPair(SignerId signerId, P2_Affine& pk)
+    SidPkPair::SidPkPair(SignerId signerId, P2_Affine* pk)
     {
-        m_pk = &pk;
+        m_pk = pk;
         m_signerId = signerId;
     }
 

@@ -173,7 +173,10 @@ namespace bls_signatures {
      */
     bool BloomFilterContainer::merge(BloomFilterContainer* other)
     {
-        if (this == other) return true;
+        if (this == other) {
+            printf("During BF merge: this == other");
+            return true;
+        }
 
         //printf("BloomFilterContainer::merge: entered method, size of m_reductions: %lu other.getReductions().size(): %lu\n", m_reductions.size(), other->getReductions().size());
         if (*other->getBloomFilter() == *m_bloomFilter) {

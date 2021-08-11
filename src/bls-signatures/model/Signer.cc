@@ -18,9 +18,9 @@ namespace bls_signatures {
     {
     }
 
-    P2_Affine& Signer::getPublicKey()
+    P2_Affine* Signer::getPublicKey()
     {
-        return *m_pk;
+        return m_pk;
     }
 
     P1& Signer::sign(byte* message, size_t size)
@@ -44,6 +44,25 @@ namespace bls_signatures {
             signature.aggregate(sign(reconstructed[i]));
         }
         return signature;
+    }
+
+        bool Signer::verify(std::vector<SignedMessage> messages, P1_Affine* signature)
+    {
+        Pairing* pairing = new Pairing(1, NULL, 0);
+        for (size_t i = 0; i < messages.size(); i++) {
+            SignedMessage message = messages[i];
+            pairing->aggregate(message.m_publicKey, NULL, message.m_content->table(), message.m_content->size()/8, NULL, 0);
+        }
+
+        PT* pt = new PT(*signature);
+
+        pairing->commit();
+        bool res = pairing->finalverify(pt) == 1;
+
+        delete pairing;
+        delete pt;
+        
+        return res;
     }
 
     bool Signer::verify(std::vector<SignedMessage> messages, std::vector<P1_Affine> signatures)
@@ -74,7 +93,6 @@ namespace bls_signatures {
 
     P1_Affine Signer::aggregateSignatures(std::vector<P1_Affine> signatures)
     {
-        std::vector<P1_Affine>::iterator it = signatures.begin();
         P1 res;
         for (std::vector<P1_Affine>::iterator it = signatures.begin(); it < signatures.end(); it++)
         {

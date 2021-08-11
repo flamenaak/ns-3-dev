@@ -16,6 +16,7 @@ def build(bld):
         'model/BfXorRepresentation.cc',
         'model/Signer.cc',
         'model/FilterStore.cc',
+        'model/SignerStore.cc',
         'model/BlsApp.cc',
         'helper/bls-signatures-helper.cc',
         ]
@@ -35,10 +36,11 @@ def build(bld):
         'model/BloomFilterContainer.hpp',
         'model/BfXorRepresentation.hpp',
         'model/Signer.hpp',
-        'model/BlsInterest.hpp',
         'model/FilterStore.hpp',
+        'model/SignerStore.hpp',
         'model/BlsApp.hpp',
         'helper/bls-signatures-helper.h',
+        'model/BlsInterest.hpp',
         ]
 
     if bld.env.ENABLE_EXAMPLES:

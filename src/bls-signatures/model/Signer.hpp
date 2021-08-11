@@ -21,7 +21,7 @@ namespace bls_signatures {
         Signer(byte seed[32], size_t size);
         ~Signer();
 
-        P2_Affine& getPublicKey();
+        P2_Affine* getPublicKey();
 
         P1& sign(bloom_filter* bf);
         P1 sign(BloomFilterContainer* container);
@@ -32,6 +32,9 @@ namespace bls_signatures {
 
         static bool verify(std::vector<SignedMessage> messages, std::vector<P1_Affine> signatures);
         static bool verify(byte* message, size_t size, P1_Affine* signature, P2_Affine pk);
+        static bool verify(std::vector<SignedMessage> messages, P1_Affine* signature);
+
+
         static P1_Affine aggregateSignatures(std::vector<P1_Affine> signatures);
 
     };
