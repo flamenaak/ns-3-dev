@@ -23,6 +23,7 @@ namespace bls_signatures {
         
         ~BloomFilterContainer();
         SignerId getSignerId();
+        void setSignerId(SignerId newId);
         bloom_filter* getBloomFilter();
         void insertIntoBf(std::string text);
         bool bfContains(std::string text);

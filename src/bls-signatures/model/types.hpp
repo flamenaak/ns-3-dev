@@ -26,7 +26,7 @@ namespace bls_signatures {
 
     const size_t PK_SIZE = 192;
 
-    const long AGGREGATION_TIMER = 400;
+    const long AGGREGATION_TIMER = 2000;
 
     enum class BlsNodeType {
         SERVER, CLIENT, ROUTER

@@ -44,6 +44,11 @@ namespace bls_signatures {
         return m_signerId;
     }
 
+    void BloomFilterContainer::setSignerId(SignerId newId)
+    {
+        m_signerId = newId;
+    }
+
     bloom_filter* BloomFilterContainer::getBloomFilter()
     {
         return m_bloomFilter;
@@ -174,7 +179,7 @@ namespace bls_signatures {
     bool BloomFilterContainer::merge(BloomFilterContainer* other)
     {
         if (this == other) {
-            printf("During BF merge: this == other");
+            printf("During BF merge: this == other \n");
             return true;
         }
 
@@ -183,9 +188,6 @@ namespace bls_signatures {
             //printf("BloomFilterContainer::merge: same filters \n");
             for (size_t i = 0; i < other->getReductions().size(); i++) {
                 //printf("BloomFilterContainer::merge: in the for loop \n");
-                if (this == other) {
-                    //printf("BloomFilterContainer::merge: this == other, reduction sizes %lu %lu \n", m_reductions.size(), other->getReductions().size());  
-                }
                 m_reductions.push_back(other->getReductions()[i]);
                 //printf("BloomFilterContainer::merge: size of m_reductions: %lu other.getReductions().size(): %lu\n", m_reductions.size(), other->getReductions().size());
 
