@@ -46,10 +46,12 @@ namespace bls_signatures
         void addBloomFilter(BloomFilterContainer *bf);
         vector<BloomFilterContainer*> getAllBloomFilters();
         bool verify(vector<SidPkPair*> additionalSignerList);
+        bool verify2(vector<SidPkPair*> additionalSignerList);
         size_t getPublicKeyIndex(SignerId signerId);
         size_t searchForPk(SignerId signerId, vector<SidPkPair*> list);
 
         size_t estimateByteSize(bool log);
+        void logDebug();
     };
 
     BlsInterest::BlsInterest()
@@ -152,7 +154,7 @@ namespace bls_signatures
     m_signerList.push_back(signerPair);
   }
 
-  void BlsInterest::mergeBf(BloomFilterContainer* bloomFilter)
+    void BlsInterest::mergeBf(BloomFilterContainer* bloomFilter)
   {
     //printf("mergeBf: entered method \n");
     if (m_bloomFilters.size() == 0)
@@ -166,14 +168,19 @@ namespace bls_signatures
     size_t index = 0;
     //printf("mergeBf: size of m_bloomFilters %lu \n", m_bloomFilters.size());
     for (size_t i = 0; i < m_bloomFilters.size(); i++) {
+      if (bloomFilter == m_bloomFilters[i])
+      {
+        printf("You cannot merge a BF container with itself \n");
+        continue;
+      }
       unsigned long distance = m_bloomFilters[i]->calculateDistance(bloomFilter->getBloomFilter());
-      if (minDistance == (unsigned long)-1 || distance < minDistance) {
+      if (minDistance == (unsigned long)-1 || distance < minDistance) {       
         minDistance = distance;
         closestBloomFilter = m_bloomFilters[i];
         index = i;
       }
     }
-    if (minDistance == -1) {
+    if (minDistance == (unsigned long)-1) {
       m_bloomFilters.push_back(bloomFilter);
     }
     //printf("mergeBf: finished finding nearest \n");
@@ -190,7 +197,7 @@ namespace bls_signatures
     }
     else {
       // this could be added after this for loop to not slow down next iteration
-      printf("Could not reduce bf, the distance is too great: %lu \n", minDistance);
+      // printf("Could not reduce bf, the distance is too great: %lu \n", minDistance);
       m_bloomFilters.push_back(bloomFilter);
     }
   }
@@ -267,6 +274,41 @@ namespace bls_signatures
     return Signer::verify(messages, signatures);
   }
 
+  bool BlsInterest::verify2(vector<SidPkPair*> additionalSignerList)
+  {
+    if (m_signature == NULL) {
+      printf("ERROR: no signature present");
+      return false;
+    }
+
+    std::vector<SignedMessage> messages;
+    messages.clear();
+    std::vector<P1_Affine> signatures;
+    signatures.clear();
+    signatures.push_back(*m_signature);
+
+    std::vector<BloomFilterContainer*> bfs = getAllBloomFilters();
+    for (size_t i = 0; i < bfs.size(); i++)
+    {
+      size_t index = getPublicKeyIndex(bfs[i]->getSignerId());
+
+      if (index == (size_t)-1) {
+        printf("did not find public key of a main container, id: %lu \n", bfs[i]->getSignerId());
+        return false;
+      }
+      if (index == (size_t)-1) {
+        index = searchForPk(bfs[i]->getSignerId(), additionalSignerList);
+      }
+      if (index == (size_t)-1) {
+        printf("did not find public key of a main container, id: %lu \n", bfs[i]->getSignerId());
+        return false;
+      }
+      messages.push_back(SignedMessage(bfs[i]->getBloomFilter(), m_signerList[index]->m_pk));
+    }
+
+    return Signer::verify(messages, signatures);
+  }
+
   // extend this when you have a public key cache
   size_t BlsInterest::getPublicKeyIndex(SignerId signerId)
   {
@@ -301,5 +343,19 @@ namespace bls_signatures
     size += 100; // other stuff
 
     return size;
+  }
+
+  void BlsInterest::logDebug()
+  {
+    cout << "Interest debug \n";
+    for (size_t i = 0; i < m_bloomFilters.size(); i++) {
+      
+      BloomFilterContainer* container = m_bloomFilters[i];
+      container->printFilter();
+      for (size_t j = 0; j < container->getReductions().size(); j++) {
+        container->getReductions()[j]->printIndexVector();
+      }
+    }
+    cout << "\n";
   }
 }

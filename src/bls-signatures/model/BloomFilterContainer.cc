@@ -27,6 +27,15 @@ namespace bls_signatures {
         m_reductions.clear();
     }
 
+    BloomFilterContainer::BloomFilterContainer(SignerId signerId, int predictedElementCount)
+    {
+        m_bloomFilter = new bloom_filter(predictedElementCount, BF_P, BF_SEED);
+        m_bloomFilter->clear();
+        m_signerId = signerId;
+        m_reductions.clear();
+        shouldDelete = true;
+    }
+
     BloomFilterContainer::~BloomFilterContainer()
     {
         m_reductions.clear();
@@ -103,7 +112,7 @@ namespace bls_signatures {
 
     unsigned long BloomFilterContainer::calculateDistance(bloom_filter* filter)
     {
-        bloom_filter* xorFilter = new bloom_filter(m_bloomFilter->element_count(),
+        bloom_filter* xorFilter = new bloom_filter(m_bloomFilter->predicted_element_count_,
             m_bloomFilter->desired_false_positive_probability_,
             m_bloomFilter->random_seed_);
         xorFilter->set_salt_count(m_bloomFilter->salt_count());

@@ -14,7 +14,7 @@ BlsApp::BlsApp(BlsNodeType type, SignerId id) {
 }
 
 BlsApp::~BlsApp() {
-    
+    // delete[] m_timeMap;
 }
 
 SignerId BlsApp::getId()
@@ -44,4 +44,9 @@ void BlsApp::getRandomSeed(byte* buffer, size_t size, int seed)
 SignerStore* BlsApp::getSigners()
 {
   return &m_signers;
+}
+
+std::map<std::string, int64_t>* BlsApp::getTimeMap()
+{
+  return &m_timeMap;
 }

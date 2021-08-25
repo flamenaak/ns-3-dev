@@ -810,6 +810,234 @@ void testInterests()
   printf("how many BFs %lu \n", interest1->getAllBloomFilters().size());
 }
 
+// test for same messages
+void testInterest2()
+{
+  #pragma region init_bloomFilters
+  BloomFilterContainer containerTwoReductions = BloomFilterContainer((SignerId)111);
+  BloomFilterContainer containerTwoReductions_clone = BloomFilterContainer((SignerId)111);
+
+  BloomFilterContainer containerOneReduction = BloomFilterContainer((SignerId)111);
+  BloomFilterContainer containerOneReduction_otherSigner = BloomFilterContainer((SignerId)222);
+
+  BloomFilterContainer containerNoReductions = BloomFilterContainer((SignerId)111);
+  
+  BloomFilterContainer container3 = BloomFilterContainer((SignerId)111);
+  BloomFilterContainer container4 = BloomFilterContainer((SignerId)111);
+  BloomFilterContainer container5 = BloomFilterContainer((SignerId)111);
+  BloomFilterContainer container5_otherSigner = BloomFilterContainer((SignerId)222);
+
+  printf("\n \n Testing of BlsInterest \n");
+  printf("reducing and serializing following: \n");
+  containerTwoReductions.insertIntoBf("content1");
+  containerTwoReductions_clone.insertIntoBf("content1");
+
+  containerOneReduction.insertIntoBf("content1");
+  containerOneReduction_otherSigner.insertIntoBf("content1");
+
+  container3.insertIntoBf("some other string which hashes different");
+  container4.insertIntoBf("some other string which hashes different!!");
+
+  container5.insertIntoBf("some other string which hashes kasdfk");
+  container5_otherSigner.insertIntoBf("some other string which hashes kasdfk");
+
+  containerNoReductions.insertIntoBf("42");
+
+  containerTwoReductions.printFilter();
+
+  containerOneReduction.printFilter();
+  container3.printFilter();
+  container4.printFilter();
+  container5.printFilter();
+  containerNoReductions.printFilter();
+
+  // ensure clones are the same
+  assert((*(containerTwoReductions.getBloomFilter()) == *(containerTwoReductions_clone.getBloomFilter())));
+  assert((*(containerTwoReductions.getBloomFilter()) == *(containerOneReduction.getBloomFilter())));
+  // ensure we are not testing with same filters
+  
+  assert(!(*(containerOneReduction.getBloomFilter()) == *(container3.getBloomFilter())));
+  assert(!(*(containerTwoReductions.getBloomFilter()) == *(container3.getBloomFilter())));
+
+  containerTwoReductions.addReduction(container3.getBloomFilter(), container3.getSignerId());
+  containerTwoReductions.addReduction(container4.getBloomFilter(), container4.getSignerId());
+  containerTwoReductions_clone.addReduction(container3.getBloomFilter(), container3.getSignerId());
+  containerTwoReductions_clone.addReduction(container4.getBloomFilter(), container4.getSignerId());
+
+  containerOneReduction.addReduction(container5.getBloomFilter(), container5.getSignerId());
+  containerOneReduction_otherSigner.addReduction(container5_otherSigner.getBloomFilter(), container5_otherSigner.getSignerId());
+
+  assert(containerTwoReductions.getReductions().size() == 2);
+  assert(containerTwoReductions_clone.getReductions().size() == 2);
+
+  assert(containerOneReduction.getReductions().size() == 1);
+  assert(containerNoReductions.getReductions().size() == 0);
+
+  srand(0);
+  uint8_t seed1[32];
+  uint8_t seed2[32];
+  getRandomSeed(seed1, sizeof(seed1), rand());
+  getRandomSeed(seed2, sizeof(seed2), rand());
+
+  Signer signer1(seed1, sizeof(seed1));
+  Signer signer2(seed2, sizeof(seed2));
+  Signer signer3(seed1, sizeof(seed1));
+#pragma endregion
+  // same signer, same content
+  P1_Affine affineSig1 = signer1.sign(&containerTwoReductions).to_affine();
+  BlsInterest* interest1 = new BlsInterest(BlsInterest::CAR, &affineSig1);
+  interest1->addBloomFilter(&containerTwoReductions);
+  interest1->addSigner(new SidPkPair(containerTwoReductions.getSignerId(), signer1.getPublicKey()));
+  assert(interest1->verify(vector<SidPkPair*>()));
+
+  P1_Affine affineSig2 = signer1.sign(&containerTwoReductions_clone).to_affine();
+  BlsInterest* interest2 = new BlsInterest(BlsInterest::CAR, &affineSig2);
+  interest2->addBloomFilter(&containerTwoReductions_clone);
+  interest2->addSigner(new SidPkPair(containerTwoReductions_clone.getSignerId(), signer1.getPublicKey()));
+  assert(interest2->verify(vector<SidPkPair*>()));
+
+  interest1->merge(interest2);
+  assert(interest1->verify(vector<SidPkPair*>()));
+
+  // different signers, same content
+  P1_Affine affineSig3 = signer1.sign(&containerOneReduction).to_affine();
+  BlsInterest* interest3 = new BlsInterest(BlsInterest::CAR, &affineSig3);
+  interest3->addBloomFilter(&containerOneReduction);
+  interest3->addSigner(new SidPkPair(containerOneReduction.getSignerId(), signer1.getPublicKey()));
+  assert(interest3->verify(vector<SidPkPair*>()));
+
+  P1_Affine affineSig4 = signer2.sign(&containerOneReduction_otherSigner).to_affine();
+  BlsInterest* interest4 = new BlsInterest(BlsInterest::CAR, &affineSig4);
+  interest4->addBloomFilter(&containerOneReduction_otherSigner);
+  interest4->addSigner(new SidPkPair(containerOneReduction_otherSigner.getSignerId(), signer2.getPublicKey()));
+  assert(interest4->verify(vector<SidPkPair*>()));
+
+  interest3->merge(interest4);
+  assert(interest3->verify(vector<SidPkPair*>()));
+}
+
+// test similar to the simulator
+void testInterest3()
+{
+  #pragma region init_bloomFilters
+  BloomFilterContainer containerTwoReductions = BloomFilterContainer((SignerId)111);
+  BloomFilterContainer containerTwoReductions_diffReductions = BloomFilterContainer((SignerId)111);
+
+  BloomFilterContainer containerOneReduction = BloomFilterContainer((SignerId)111);
+  BloomFilterContainer containerOneReduction_otherSigner = BloomFilterContainer((SignerId)222);
+
+  BloomFilterContainer containerNoReductions = BloomFilterContainer((SignerId)111);
+  
+  BloomFilterContainer container3 = BloomFilterContainer((SignerId)111);
+  BloomFilterContainer container4 = BloomFilterContainer((SignerId)111);
+  BloomFilterContainer container5 = BloomFilterContainer((SignerId)111);
+  BloomFilterContainer container5_otherSigner = BloomFilterContainer((SignerId)222);
+
+  printf("\n \n Testing of BlsInterest \n");
+  printf("reducing and serializing following: \n");
+  containerTwoReductions.insertIntoBf("content1");
+  containerTwoReductions_diffReductions.insertIntoBf("content1");
+
+  containerOneReduction.insertIntoBf("content1");
+  containerOneReduction_otherSigner.insertIntoBf("content1");
+
+  container3.insertIntoBf("some other string which hashes different");
+  container4.insertIntoBf("some other string which hashes different!!");
+
+  container5.insertIntoBf("some other string which hashes kasdfk");
+  container5_otherSigner.insertIntoBf("some other string which hashes kasdfk");
+
+  containerNoReductions.insertIntoBf("42");
+
+  containerTwoReductions.printFilter();
+
+  containerOneReduction.printFilter();
+  container3.printFilter();
+  container4.printFilter();
+  container5.printFilter();
+  containerNoReductions.printFilter();
+
+  // ensure clones are the same
+  assert((*(containerTwoReductions.getBloomFilter()) == *(containerTwoReductions_diffReductions.getBloomFilter())));
+  assert((*(containerTwoReductions.getBloomFilter()) == *(containerOneReduction.getBloomFilter())));
+  // ensure we are not testing with same filters
+  
+  assert(!(*(containerOneReduction.getBloomFilter()) == *(container3.getBloomFilter())));
+  assert(!(*(containerTwoReductions.getBloomFilter()) == *(container3.getBloomFilter())));
+
+  // containerTwoReductions.addReduction(container3.getBloomFilter(), container3.getSignerId());
+  // containerTwoReductions.addReduction(container4.getBloomFilter(), container4.getSignerId());
+  // containerTwoReductions_clone.addReduction(container3.getBloomFilter(), container3.getSignerId());
+  // containerTwoReductions_clone.addReduction(container4.getBloomFilter(), container4.getSignerId());
+
+  // containerOneReduction.addReduction(container5.getBloomFilter(), container5.getSignerId());
+  // containerOneReduction_otherSigner.addReduction(container5_otherSigner.getBloomFilter(), container5_otherSigner.getSignerId());
+
+  assert(containerTwoReductions.getReductions().size() == 0);
+  assert(containerTwoReductions_diffReductions.getReductions().size() == 0);
+
+  assert(containerOneReduction.getReductions().size() == 0);
+  assert(containerNoReductions.getReductions().size() == 0);
+
+  srand(0);
+  uint8_t seed1[32];
+  uint8_t seed2[32];
+  getRandomSeed(seed1, sizeof(seed1), rand());
+  getRandomSeed(seed2, sizeof(seed2), rand());
+
+  Signer signer1(seed1, sizeof(seed1));
+  Signer signer2(seed2, sizeof(seed2));
+  Signer signer3(seed1, sizeof(seed1));
+#pragma endregion
+  // prepare interest1 with two merged interests
+  P1_Affine affineSig1 = signer1.sign(&containerTwoReductions).to_affine();
+  BlsInterest* interest1 = new BlsInterest(BlsInterest::CAR, &affineSig1);
+  interest1->addBloomFilter(&containerTwoReductions);
+  interest1->addSigner(new SidPkPair(containerTwoReductions.getSignerId(), signer1.getPublicKey()));
+  assert(interest1->verify(vector<SidPkPair*>()));
+
+  P1_Affine affineSig2 = signer1.sign(&container3).to_affine();
+  BlsInterest* interest2 = new BlsInterest(BlsInterest::CAR, &affineSig2);
+  interest2->addBloomFilter(&container3);
+  interest2->addSigner(new SidPkPair(container3.getSignerId(), signer1.getPublicKey()));
+  assert(interest2->verify(vector<SidPkPair*>()));
+
+  interest1->merge(interest2);
+  assert(interest1->verify(vector<SidPkPair*>()));
+
+  P1_Affine affineSig3 = signer1.sign(&container4).to_affine();
+  BlsInterest* interest3 = new BlsInterest(BlsInterest::CAR, &affineSig3);
+  interest3->addBloomFilter(&container4);
+  interest3->addSigner(new SidPkPair(container4.getSignerId(), signer1.getPublicKey()));
+  assert(interest3->verify(vector<SidPkPair*>()));
+
+  interest1->merge(interest3);
+  assert(interest1->verify(vector<SidPkPair*>()));
+  //// ----------- ////
+  // prepare interest 4 with one merged interest
+  P1_Affine affineSig4 = signer1.sign(&containerOneReduction).to_affine();
+  BlsInterest* interest4 = new BlsInterest(BlsInterest::CAR, &affineSig4);
+  interest4->addBloomFilter(&containerOneReduction);
+  interest4->addSigner(new SidPkPair(containerOneReduction.getSignerId(), signer1.getPublicKey()));
+  assert(interest4->verify(vector<SidPkPair*>()));
+
+  P1_Affine affineSig5 = signer1.sign(&container5).to_affine();
+  BlsInterest* interest5 = new BlsInterest(BlsInterest::CAR, &affineSig5);
+  interest5->addBloomFilter(&container5);
+  interest5->addSigner(new SidPkPair(container5.getSignerId(), signer1.getPublicKey()));
+  assert(interest5->verify(vector<SidPkPair*>()));
+
+  interest4->merge(interest5);
+  assert(interest4->verify(vector<SidPkPair*>()));
+
+  // merge the two large interests
+  interest1->merge(interest4);
+  assert(interest1->verify(vector<SidPkPair*>()));
+  assert(interest1->verify2(vector<SidPkPair*>()));
+
+  interest1->logDebug();
+}
+
 void testFilterStore()
 {
   bloom_filter* filter1 = new bloom_filter(BF_N, BF_P, BF_SEED);
@@ -892,7 +1120,10 @@ int main(int argc, char* argv[])
   // testSignedSerializedData();
 
   //
-  testInterests();
+  // testInterests();
+
+  testInterest2();
+  testInterest3();
 
   // testFilterStore();
 

@@ -22,6 +22,8 @@ namespace ns3 {
             Signer* getSigner();
             BlsNodeType getNodeType();
             SignerStore* getSigners();
+            std::map<std::string, int64_t>* getTimeMap();
+            
         private:
             void getRandomSeed(byte* buffer, size_t size, int seed);
         
@@ -34,6 +36,7 @@ namespace ns3 {
 
             Signer m_signer;
             SignerId m_id;
+            std::map<std::string, int64_t> m_timeMap;
     };
 }
 

@@ -19,6 +19,7 @@ namespace bls_signatures {
     public:
         BloomFilterContainer();
         BloomFilterContainer(SignerId signerId);
+        BloomFilterContainer(SignerId signerId, int predictedElementCount);
         BloomFilterContainer(SignerId signerId, bloom_filter &bf);
         
         ~BloomFilterContainer();
