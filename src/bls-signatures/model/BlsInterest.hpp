@@ -156,7 +156,6 @@ namespace bls_signatures
 
     void BlsInterest::mergeBf(BloomFilterContainer* bloomFilter)
   {
-    //printf("mergeBf: entered method \n");
     if (m_bloomFilters.size() == 0)
     {
       m_bloomFilters.push_back(bloomFilter);
@@ -166,7 +165,6 @@ namespace bls_signatures
     unsigned long minDistance = -1;
     BloomFilterContainer* closestBloomFilter;
     size_t index = 0;
-    //printf("mergeBf: size of m_bloomFilters %lu \n", m_bloomFilters.size());
     for (size_t i = 0; i < m_bloomFilters.size(); i++) {
       if (bloomFilter == m_bloomFilters[i])
       {
@@ -183,7 +181,6 @@ namespace bls_signatures
     if (minDistance == (unsigned long)-1) {
       m_bloomFilters.push_back(bloomFilter);
     }
-    //printf("mergeBf: finished finding nearest \n");
     if (minDistance <= (unsigned long)DELTA_MAX) {
       if (closestBloomFilter->merge(bloomFilter)) {
         return;
@@ -196,8 +193,6 @@ namespace bls_signatures
       }
     }
     else {
-      // this could be added after this for loop to not slow down next iteration
-      // printf("Could not reduce bf, the distance is too great: %lu \n", minDistance);
       m_bloomFilters.push_back(bloomFilter);
     }
   }
@@ -213,13 +208,6 @@ namespace bls_signatures
       printf("not merging, no bloom filters \n");
       return;
     }
-
-    // this is probably not necessary, received interests are already verified
-    
-    // if (!other->verify(additionalSignerList)) {
-    //   printf("could not verify BlsInterest being merged \n");
-    //   return;
-    // }
 
     for (size_t i = 0; i < other->getBloomFilters().size(); i++) {
       mergeBf(other->getBloomFilters()[i]);
@@ -318,7 +306,6 @@ namespace bls_signatures
   size_t BlsInterest::searchForPk(SignerId signerId, vector<SidPkPair*> list)
   {
     for (size_t i = 0; i < list.size(); i++) {
-      //printf("index %lu, signer id %lu \n", i, m_signerList[i]->m_signerId);
       if (list[i]->m_signerId == signerId) return i;
     }
     return -1;

@@ -124,13 +124,6 @@ namespace bls_signatures {
         return true;
     }
 
-    /**
-     * @brief like equals but does not care about id's only the data
-     *
-     * @param other
-     * @return true
-     * @return false
-     */
     bool BfXorRepresentation::shallowEquals(BfXorRepresentation* other)
     {
         if (m_elementCount != other->getElementCount()) return false;

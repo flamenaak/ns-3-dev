@@ -102,7 +102,6 @@ namespace bls_signatures {
     }
 
     // ------------------ Misc --------------------------------
-    // delete these later
     void Signer::printByte(unsigned char n)
     {
         blst::byte i = 0;

@@ -7,6 +7,9 @@
 #include <array>
 #include <assert.h>
 
+#include <iostream>
+#include <ctime>
+#include <unistd.h>
 
 #include "ns3/SidPkPair.hpp"
 #include "ns3/SignedMessage.hpp"
@@ -23,6 +26,7 @@ using namespace ns3;
 using namespace blst;
 using namespace bls_signatures;
 using namespace std;
+std::string gen_random(const int len);
 
 void printByte(unsigned char n)
 {
@@ -1088,6 +1092,241 @@ void testFilterStore()
   assert(store.getSize() == 0);
 }
 
+std::string gen_random(const int len) 
+{
+    std::string tmp_s;
+    static const char alphanum[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+    
+
+    tmp_s.reserve(len);
+
+    for (int i = 0; i < len; ++i) 
+        tmp_s += alphanum[rand() % (sizeof(alphanum) - 1)];
+    
+    return tmp_s;
+}
+
+bloom_filter* getPopulatedBf(int N, double P, int inserted)
+{
+  bloom_filter *result = new bloom_filter(N, P, BF_SEED);
+  for (int i =0; i < inserted; i++)
+  {
+    result->insert(gen_random(15));
+  }
+  return result;
+}
+
+
+void mergeBf(BloomFilterContainer* bloomFilter, vector<BloomFilterContainer*> *m_bloomFilters, unsigned long deltaMax)
+{
+  //printf("mergeBf: entered method \n");
+  if (m_bloomFilters->size() == 0)
+  {
+    m_bloomFilters->push_back(bloomFilter);
+    return;
+  }
+  // find the closest bloomFilter
+  unsigned long minDistance = -1;
+  BloomFilterContainer* closestBloomFilter;
+  size_t index = 0;
+  // printf("mergeBf: size of m_bloomFilters %lu \n", m_bloomFilters->size());
+  size_t i =0;
+  for (vector<BloomFilterContainer*>::iterator it = m_bloomFilters->begin(); it != m_bloomFilters->end(); it++) {
+    if (bloomFilter == *it)
+    {
+      printf("You cannot merge a BF container with itself \n");
+      continue;
+    }
+    unsigned long distance = (*it)->calculateDistance(bloomFilter->getBloomFilter());
+    if (minDistance == (unsigned long)-1 || distance < minDistance) {       
+      minDistance = distance;
+      closestBloomFilter = (*it);
+      index = i;
+    }
+    i++;
+  }
+  if (minDistance == (unsigned long)-1) {
+    m_bloomFilters->push_back(bloomFilter);
+  }
+  //printf("mergeBf: finished finding nearest \n");
+  if (minDistance <= (unsigned long)deltaMax) {
+    if (closestBloomFilter->merge(bloomFilter)) {
+      return;
+    }
+    else if (bloomFilter->merge(closestBloomFilter)) {
+      (*m_bloomFilters)[index] = bloomFilter;
+    }
+    else {
+     // printf("distance too great %lu", minDistance);
+      m_bloomFilters->push_back(bloomFilter);
+    }
+  }
+  else {
+    // this could be added after this for loop to not slow down next iteration
+    //printf("Could not reduce bf, the distance is too great: %lu \n", minDistance);
+    m_bloomFilters->push_back(bloomFilter);
+  }
+}
+
+void compressionExperiment1()
+{
+  srand((unsigned) time(NULL) * getpid());
+
+  double p = 0.05;
+  int n = 50;
+  int bfm = ceil(-((n * log(p)) / pow(log(2), 2))/8)*8;
+  // Maximum distance of two BFs that allows efficient XorRepresentation
+  const int deltaMax = floor(bfm/(bfIndexBytes*8));
+
+  vector<int> populated={1,2,3,4,5,10,15,25,30,40,50};
+
+  for (int k =0; k < populated.size(); k++) 
+  {
+    size_t compareByteSize = 0;
+
+    int pop = populated[k];
+    vector<BloomFilterContainer*> filters;
+    BloomFilterContainer* first = new BloomFilterContainer(1, getPopulatedBf(n,p, pop));
+    first->printFilter();
+    filters.push_back(first);
+    compareByteSize += first->getByteSize();
+    for(int i =0; i < 99; i++)
+    {
+      BloomFilterContainer* other = new BloomFilterContainer(1, getPopulatedBf(n,p, pop));
+      compareByteSize += other->getByteSize();
+      mergeBf(other, &filters, deltaMax);
+    }
+    size_t totalSize = 0;
+    for (size_t i=0; i < filters.size(); i++)
+    {
+      totalSize += filters[i]->getByteSize();
+    }
+    printf("for population of %i the total size is %lu which is %f percent of %lu \n", pop, totalSize, (((double)totalSize/(double)compareByteSize)*100), compareByteSize);
+
+    printf("Size of bloom filters is set to: %i and DELTA_MAX is %i \n", bfm, deltaMax);
+  }  
+}
+
+void compressionExperiment2()
+{
+  srand((unsigned) time(NULL) * getpid());
+
+  double p = 0.05;
+  vector<int> populated={20,40,60,80,100,120,140,160,180,200};
+
+  for (int k =0; k < populated.size(); k++) 
+  {
+    int n = populated[k];
+    int bfm = ceil(-((n * log(p)) / pow(log(2), 2))/8)*8;
+  // Maximum distance of two BFs that allows efficient XorRepresentation
+    int deltaMax = floor(bfm/(bfIndexBytes*8));
+    size_t compareByteSize = 0;
+
+    int pop = populated[k];
+    vector<BloomFilterContainer*> filters;
+    BloomFilterContainer* first = new BloomFilterContainer(1, getPopulatedBf(n,p, pop));
+    first->printFilter();
+    filters.push_back(first);
+    compareByteSize += first->getByteSize();
+    for(int i =0; i < 99; i++)
+    {
+      BloomFilterContainer* other = new BloomFilterContainer(1, getPopulatedBf(n,p, pop));
+      compareByteSize += other->getByteSize();
+      mergeBf(other, &filters, deltaMax);
+    }
+    size_t totalSize = 0;
+    for (size_t i=0; i < filters.size(); i++)
+    {
+      totalSize += filters[i]->getByteSize();
+    }
+    printf("for population of %i the total size is %lu which is %f percent of %lu \n", pop, totalSize, (((double)totalSize/(double)compareByteSize)*100), compareByteSize);
+
+    printf("Size of bloom filters is set to: %i and DELTA_MAX is %i \n", bfm, deltaMax);
+  }  
+}
+
+void compressionExperiment3()
+{
+  srand((unsigned) time(NULL) * getpid());
+
+  double p = 0.05;
+  vector<int> ns={20,40,60,80,100,120,140,160,180,200};
+
+  for (int l =0; l < ns.size(); l++) 
+  {
+    int n = ns[l];
+    int bfm = ceil(-((n * log(p)) / pow(log(2), 2))/8)*8;
+  // Maximum distance of two BFs that allows efficient XorRepresentation
+    int deltaMax = floor(bfm/(bfIndexBytes*8));
+    vector<int> populated={1,2,3,4,5,10,15,25,30,40,50,100,150,200};
+    printf("Size of bloom filters is set to: %i and DELTA_MAX is %i \n", bfm, deltaMax); 
+    for (int k =0; k < populated.size(); k++) 
+    {
+      size_t compareByteSize = 0;
+      int pop = populated[k];
+      if (pop > n) continue;
+      vector<BloomFilterContainer*> filters;
+      BloomFilterContainer* first = new BloomFilterContainer(1, getPopulatedBf(n,p, pop));
+      //first->printFilter();
+      filters.push_back(first);
+      compareByteSize += first->getByteSize();
+      for(int i =0; i < 99; i++)
+      {
+        BloomFilterContainer* other = new BloomFilterContainer(1, getPopulatedBf(n,p, pop));
+        compareByteSize += other->getByteSize();
+        mergeBf(other, &filters, deltaMax);
+      }
+      size_t totalSize = 0;
+      for (size_t i=0; i < filters.size(); i++)
+      {
+        totalSize += filters[i]->getByteSize();
+      }
+      printf("for population of %i the total size is %lu which is %f percent of %lu \n", pop, totalSize, (((double)totalSize/(double)compareByteSize)*100), compareByteSize);
+    } 
+    
+  }
+}
+
+void compressionExperiment4()
+{
+  srand((unsigned) time(NULL) * getpid());
+
+  double p = 0.05;
+  int n = 200;
+  int bfm = ceil(-((n * log(p)) / pow(log(2), 2))/8)*8;
+  // Maximum distance of two BFs that allows efficient XorRepresentation
+  const int deltaMax = floor(bfm/(bfIndexBytes*8));
+
+  for (int k =0; p <= 0.3; p+=0.05) 
+  {
+    size_t compareByteSize = 0;
+    int pop = 10;
+    vector<BloomFilterContainer*> filters;
+    BloomFilterContainer* first = new BloomFilterContainer(1, getPopulatedBf(n,p, pop));
+    first->printFilter();
+    filters.push_back(first);
+    compareByteSize += first->getByteSize();
+    for(int i =0; i < 99; i++)
+    {
+      BloomFilterContainer* other = new BloomFilterContainer(1, getPopulatedBf(n,p, pop));
+      compareByteSize += other->getByteSize();
+      mergeBf(other, &filters, deltaMax);
+    }
+    size_t totalSize = 0;
+    for (size_t i=0; i < filters.size(); i++)
+    {
+      totalSize += filters[i]->getByteSize();
+    }
+    printf("for p of %f the total size is %lu which is %f percent of %lu \n", p, totalSize, (((double)totalSize/(double)compareByteSize)*100), compareByteSize);
+
+    printf("Size of bloom filters is set to: %i and DELTA_MAX is %i \n", bfm, deltaMax);
+  }  
+}
+
+
 int main(int argc, char* argv[])
 {
   // // Test signatures
@@ -1122,12 +1361,13 @@ int main(int argc, char* argv[])
   //
   // testInterests();
 
-  testInterest2();
-  testInterest3();
+  // testInterest2();
+  // testInterest3();
 
   // testFilterStore();
+  compressionExperiment4();
 
-  printf("Size of bloom filters is set to: %i and DELTA_MAX is %i \n", BF_M, DELTA_MAX);
+  // printf("Size of bloom filters is set to: %i and DELTA_MAX is %i \n", BF_M, DELTA_MAX);
 
 #pragma region Bit stuff
   // unsigned char c0 = (1 << 0);

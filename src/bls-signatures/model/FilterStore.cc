@@ -19,14 +19,6 @@ namespace ns3
         filters.clear();
     }
 
-    // vector<bloom_filter*> FilterStore::getFilters() {
-    //     return filters;
-    // }
-
-    // vector<int> FilterStore::getFaces() {
-    //     return faces;
-    // }
-
     size_t FilterStore::getSize()
     {
         if (filters.size() != faces.size())
@@ -48,6 +40,7 @@ namespace ns3
         return make_pair<bloom_filter *, int>(NULL, 0);
     }
 
+    // if a filter is a subset of a BF in the store, return face for that BF
     vector<int> FilterStore::matchFilterToFaces(bloom_filter* filter)
     {
         vector<int> result;

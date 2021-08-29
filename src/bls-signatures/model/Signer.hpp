@@ -22,16 +22,20 @@ namespace bls_signatures {
         ~Signer();
 
         P2_Affine* getPublicKey();
-
+        // signs the bit table of the BF
         P1& sign(bloom_filter* bf);
+        // reconstructs all BFs in the container, then signs all BFs, aggregates the signatures, and return the aggregate signature
         P1 sign(BloomFilterContainer* container);
+        // signs the byte array
         P1& sign(byte* message, size_t size);
 
         void printByte(unsigned char n);
         void printFilter(bloom_filter* m_bloomFilter);
-
+        // aggregates the signed messages via blst::Pairing and aggregates the signatatures, the tries to verify
         static bool verify(std::vector<SignedMessage> messages, std::vector<P1_Affine> signatures);
+        // verifies a single message and a public key with a single signature
         static bool verify(byte* message, size_t size, P1_Affine* signature, P2_Affine pk);
+        // verifies a group of messages with a signle aggregate signature
         static bool verify(std::vector<SignedMessage> messages, P1_Affine* signature);
 
 
